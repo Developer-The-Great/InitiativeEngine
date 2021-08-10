@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-namespace Itv
+namespace itv
 {
 	class ITV_API Application
 	{

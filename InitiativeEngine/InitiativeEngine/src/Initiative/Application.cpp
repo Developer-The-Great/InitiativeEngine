@@ -1,6 +1,6 @@
 #include "Application.h"
 
-namespace Itv
+namespace itv
 {
 	void Application::Run()
 	{

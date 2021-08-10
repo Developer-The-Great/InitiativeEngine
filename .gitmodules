@@ -1,0 +1,3 @@
+[submodule "InitiativeEngine/InitiativeEngine/ThirdParty/spdlog"]
+	path = InitiativeEngine/InitiativeEngine/ThirdParty/spdlog
+	url = https://github.com/gabime/spdlog.git
