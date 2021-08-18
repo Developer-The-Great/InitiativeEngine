@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
@@ -67,6 +67,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\bin\src\Debug;%(AdditionalLibraryDirectories);$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Libraries</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(OutDir)InitiativeEngine.dll" "$(SolutionDir)bin\$(Configuration)-$(Platform)\Sandbox\"</Command>
@@ -80,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -88,6 +90,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\bin\src\Release;%(AdditionalLibraryDirectories);$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Libraries</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -95,11 +99,16 @@
     <ClInclude Include="src\Initiative\Application.h" />
     <ClInclude Include="src\Initiative\Core.h" />
     <ClInclude Include="src\Initiative\EntryPoint.h" />
+    <ClInclude Include="src\Initiative\Events\Event.h" />
+    <ClInclude Include="src\Initiative\Events\WindowEvents.h" />
     <ClInclude Include="src\Initiative\Log.h" />
+    <ClInclude Include="src\Initiative\Window\Window.h" />
+    <ClInclude Include="src\Initiative\Window\GLFWWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp" />
     <ClCompile Include="src\Initiative\Log.cpp" />
+    <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
