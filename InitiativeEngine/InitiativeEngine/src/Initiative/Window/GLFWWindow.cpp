@@ -12,7 +12,6 @@ namespace itv
 		mData.Title = pWindowInfo.Title;
 
 		init(pWindowInfo);
-	
 
 	}
 

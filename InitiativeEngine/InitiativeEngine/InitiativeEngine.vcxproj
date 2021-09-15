@@ -101,6 +101,7 @@
     <ClInclude Include="src\Initiative\Core.h" />
     <ClInclude Include="src\Initiative\ECS\ArchetypeManager.h" />
     <ClInclude Include="src\Initiative\ECS\ComponentArray.h" />
+    <ClInclude Include="src\Initiative\ECS\ECSUtils.h" />
     <ClInclude Include="src\Initiative\EntryPoint.h" />
     <ClInclude Include="src\Initiative\Events\Event.h" />
     <ClInclude Include="src\Initiative\Events\WindowEvents.h" />

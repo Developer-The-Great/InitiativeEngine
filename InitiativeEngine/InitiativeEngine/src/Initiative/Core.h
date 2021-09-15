@@ -24,4 +24,6 @@
 
 #include <cassert>
 
+typedef size_t TypeID;
+
 

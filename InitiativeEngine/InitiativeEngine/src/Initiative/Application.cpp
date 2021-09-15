@@ -57,8 +57,12 @@ namespace itv
 		scale aScale;
 
 		a.AddComponent(aPosition);
-		a.AddComponent(aRotation);
+		//a.AddComponent(aRotation);
 		a.AddComponent(aScale);
+
+		ITV_LOG(" has position? {0} ",a.HasComponent<position>() );
+		ITV_LOG(" has rotation? {0} ",a.HasComponent<rotation>());
+		ITV_LOG(" has scale? {0} ",   a.HasComponent<scale>());
 
 		while (mApplicationRunning)
 		{

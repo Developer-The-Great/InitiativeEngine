@@ -1,14 +1,14 @@
 #pragma once
 #include "Initiative\Core.h"
 #include "Initiative\ECS\ComponentArray.h"
+#include "Initiative\ECS\ECSUtils.h"
+
 #include "Initiative\TypeHashing.h"
 #include "Initiative\Containers\sparse_set.h"
 #include "Initiative\Log.h"
 
 namespace itv
 {
-	typedef size_t TypeID;
-
 	#define INVALID_ENTITY 0
 
 	class Archetype;
@@ -54,56 +54,12 @@ namespace itv
 
 	};
 
-	class ArchetypeType
-	{
-	private:
-
-		std::vector<TypeID> mTypes;
-
-	public:
-
-		ArchetypeType(std::vector<TypeID>&& types) : mTypes(std::move(types)) {}
-
-		ArchetypeType(const std::vector<TypeID>& types) : mTypes(types) {}
-
-		ArchetypeType() = default;
-
-		inline TypeID Size() const { return mTypes.size(); }
-
-		inline TypeID At(size_t index) const { return mTypes[index]; }
-
-		void AddType(TypeID id)
-		{
-			mTypes.push_back(id);
-			std::sort(mTypes.begin(), mTypes.end());
-		}
-
-		inline bool operator==(const ArchetypeType& types) const
-		{
-			//early exit if ArchetypeTypes are empty or are not equal in length
-
-			if (mTypes.empty() && types.mTypes.empty()) return true;
-			
-			if (mTypes.size() != types.mTypes.size()) return false;
-
-			for (size_t i = 0; i < mTypes.size(); i++)
-			{
-				if (mTypes[i] != types.mTypes[i])
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-	};
-
-
 
 	class Archetype
 	{
 		friend class ArchetypeManager;
 		friend class Entity;
+
 	private:
 
 		ArchetypeType							 mArchetypeType;
@@ -152,16 +108,6 @@ namespace itv
 		void MoveEntityAtTo(TypeID id, Archetype& newArchetype);
 
 		void* FindComponentArrayOfType(TypeID typeHash);
-
-	};
-
-	class ArchetypeQuery
-	{
-	public:
-
-	private:
-
-		std::vector<Archetype*> mArchetypes;
 
 	};
 
@@ -292,7 +238,18 @@ namespace itv
 	template<class Component>
 	bool Entity::HasComponent() const
 	{
-		return false;
+		constexpr TypeID componentHash = GenerateTypeHash<Component>();
+
+		Archetype& archetype = sArchetypeManager->GetRecord(mID);
+		
+		return archetype.FindComponentArrayOfType(componentHash) != nullptr;
+	}
+
+	template<class Component>
+	void Entity::RemoveComponent(Component& component)
+	{
+		
+
 	}
 
 
@@ -318,9 +275,7 @@ namespace itv
 			ComponentArrayBase::MoveComponent<Component>(sourceIndex, source, destination);
 		};
 
-			
 		mComponentHashToComponentActions.insert( std::make_pair(componentHash, componentActions ) );
-
 	}
 
 }
