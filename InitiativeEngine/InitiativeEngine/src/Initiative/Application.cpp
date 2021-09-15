@@ -1,4 +1,7 @@
 #include "Application.h"
+#include "Containers\sparse_set.h"
+#include "ECS\ArchetypeManager.h"
+#include "Log.h"
 
 namespace itv
 {
@@ -20,6 +23,43 @@ namespace itv
 
 	void Application::Run()
 	{
+		sparse_set<size_t> test;
+		test.push_back_unique(0);
+
+
+		struct position
+		{
+			float x, y, z;
+		};
+
+		struct rotation
+		{
+			float x, y, z, w;
+		};
+
+		struct scale
+		{
+			float x, y, z;
+		};
+
+
+
+		ArchetypeManager manager;
+
+		Entity a = manager.CreateEntity();
+
+		manager.RegisterComponent<position>();
+		manager.RegisterComponent<rotation>();
+		manager.RegisterComponent<scale>();
+
+		position aPosition;
+		rotation aRotation;
+		scale aScale;
+
+		a.AddComponent(aPosition);
+		a.AddComponent(aRotation);
+		a.AddComponent(aScale);
+
 		while (mApplicationRunning)
 		{
 			mWindow->Update();
