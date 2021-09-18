@@ -5,6 +5,11 @@
 
 namespace itv
 {
+	//----------------------------------------------------------------------------------------------//
+	//									Archetype
+	//----------------------------------------------------------------------------------------------//
+
+
 	ArchetypeManager* Entity::sArchetypeManager = nullptr;
 	ArchetypeManager * Archetype::sArchetypeManager = nullptr;
 
@@ -41,6 +46,10 @@ namespace itv
 		return nullptr;
 	}
 
+	//----------------------------------------------------------------------------------------------//
+	//									ArchetypeManager
+	//----------------------------------------------------------------------------------------------//
+
 	ArchetypeManager::ArchetypeManager()
 	{
 		//mArchetypes should never get resized because it will invalidate references to archetypes
@@ -73,9 +82,21 @@ namespace itv
 		it->second = newArchetypeIndex;
 	}
 
-	ArchetypeQuery ArchetypeManager::GetArchetypesWith(const ArchetypeType& types)
+	ArchetypeQuery ArchetypeManager::GetArchetypesWith(const ArchetypeType& type)
 	{
-		return ArchetypeQuery();
+		std::vector<Archetype*> archetypePtrs;
+		archetypePtrs.reserve( mArchetypes.size() );
+
+		//for each archetype 
+		for (Archetype& archetype : mArchetypes)
+		{
+			if ( archetype.GetArchetypeType().ContainsTypesInside( type ) )
+			{
+				archetypePtrs.push_back( &archetype );
+			}
+		}
+
+		return ArchetypeQuery( std::move( archetypePtrs ) );
 	}
 
 	std::optional<std::reference_wrapper<Archetype>> ArchetypeManager::GetArchetype(const ArchetypeType& type)
@@ -103,7 +124,7 @@ namespace itv
 		
 		mArchetypes[DEFAULT_ARCHETYPE].mEntities.push_back_unique(Entity(nextEntityID));
 
-		mEntityRecords.insert(std::make_pair(nextEntityID, DEFAULT_ARCHETYPE));
+		mEntityRecords.insert( std::make_pair(nextEntityID, DEFAULT_ARCHETYPE) );
 
 		return Entity(nextEntityID);
 	}

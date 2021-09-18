@@ -23,10 +23,6 @@ namespace itv
 
 	void Application::Run()
 	{
-		sparse_set<size_t> test;
-		test.push_back_unique(0);
-
-
 		struct position
 		{
 			float x, y, z;
@@ -42,11 +38,10 @@ namespace itv
 			float x, y, z;
 		};
 
-
-
 		ArchetypeManager manager;
 
 		Entity a = manager.CreateEntity();
+		Entity b = manager.CreateEntity();
 
 		manager.RegisterComponent<position>();
 		manager.RegisterComponent<rotation>();
@@ -56,13 +51,37 @@ namespace itv
 		rotation aRotation;
 		scale aScale;
 
+		aPosition = { 0,0,0 };
+
 		a.AddComponent(aPosition);
-		//a.AddComponent(aRotation);
+		a.AddComponent(aRotation);
 		a.AddComponent(aScale);
+
+		aPosition = { 1,2,3 };
+
+		b.AddComponent(aPosition);
 
 		ITV_LOG(" has position? {0} ",a.HasComponent<position>() );
 		ITV_LOG(" has rotation? {0} ",a.HasComponent<rotation>());
-		ITV_LOG(" has scale? {0} ",   a.HasComponent<scale>());
+		ITV_LOG(" has scale?	{0} ",   a.HasComponent<scale>());
+
+		ArchetypeType type(std::vector<size_t>{ GenerateTypeHash<position>() });
+
+		ArchetypeQuery query = manager.GetArchetypesWith(type);
+
+		for (size_t i = 0; i < query.Size(); i++)
+		{
+			auto& archetype = query[i];
+
+			auto componentArrayHandle = archetype.GetComponentArray<position>();
+
+			for (size_t i = 0; i < archetype.GetEntityCount(); i++)
+			{
+				position& ptr = componentArrayHandle[0];
+				ITV_LOG("position {0} , {1} , {2}", ptr.x, ptr.y, ptr.z);
+			}
+
+		}
 
 		while (mApplicationRunning)
 		{

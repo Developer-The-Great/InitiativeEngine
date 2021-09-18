@@ -101,11 +101,14 @@ namespace itv
 
 		ArchetypeType GetArchetypeTypeCopy() const				  { return mArchetypeType; }
 
-		const ArchetypeType& GetArchetypeType() const			  { return mArchetypeType; }
+		const  ArchetypeType& GetArchetypeType() const			  { return mArchetypeType; }
 
 		inline size_t GetEntityIndex(Entity entity) const         { return mEntities.find_dense_index_of(entity); }
 
-		void MoveEntityAtTo(TypeID id, Archetype& newArchetype);
+		inline size_t GetEntityCount() const				      { return mEntities.size(); }
+
+		template<class Component> 
+			ComponentArrayHandle<Component> GetComponentArray(); //TODO Should probably be const
 
 		void* FindComponentArrayOfType(TypeID typeHash);
 
@@ -142,7 +145,7 @@ namespace itv
 
 		inline size_t						    GetArchetypeCount() const { return mArchetypes.size(); }
 
-		ArchetypeQuery						    GetArchetypesWith(const ArchetypeType& types);
+		ArchetypeQuery						    GetArchetypesWith(const ArchetypeType& type);
 
 		std::optional
 			<std::reference_wrapper<Archetype>> GetArchetype(const ArchetypeType& types);
@@ -166,6 +169,10 @@ namespace itv
 
 
 	};
+
+	//----------------------------------------------------------------------------------------------//
+	//									Entity
+	//----------------------------------------------------------------------------------------------//
 
 	template<class Component>
 	void Entity::AddComponent(Component& component)
@@ -248,10 +255,33 @@ namespace itv
 	template<class Component>
 	void Entity::RemoveComponent(Component& component)
 	{
-		
+		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
 	}
 
+	//----------------------------------------------------------------------------------------------//
+	//									Archetype
+	//----------------------------------------------------------------------------------------------//
+
+
+	template<class Component>
+	inline ComponentArrayHandle<Component> Archetype::GetComponentArray()
+	{
+		constexpr size_t componentHash = GenerateTypeHash<Component>();
+
+		void*  foundComponentArray = FindComponentArrayOfType(componentHash);
+
+		assert(foundComponentArray);
+
+		std::vector<Component>* newComponentDestination =
+			static_cast<std::vector<Component>*>(foundComponentArray);
+
+		return ComponentArrayHandle<Component>( newComponentDestination->data(),mEntities.size() );
+	}
+
+	//----------------------------------------------------------------------------------------------//
+	//									ArchetypeManager
+	//----------------------------------------------------------------------------------------------//
 
 	template<class Component>
 	void ArchetypeManager::RegisterComponent()
@@ -277,5 +307,7 @@ namespace itv
 
 		mComponentHashToComponentActions.insert( std::make_pair(componentHash, componentActions ) );
 	}
+
+	
 
 }

@@ -76,4 +76,30 @@ namespace itv
 
 	};
 
+	template<class ComponentType>
+	class ComponentArrayHandle
+	{
+	private:
+
+		ComponentType* mFirstComponent = nullptr;
+		size_t		   mSize = 0;
+
+	public:
+
+		ComponentArrayHandle(ComponentType* firstComponentInArray,size_t arraySize) 
+			: mFirstComponent(firstComponentInArray),mSize(arraySize)
+		{
+
+		}
+
+		ComponentType& operator[](size_t index)
+		{
+			assert(index < mSize);
+
+			return mFirstComponent[index];
+
+		}
+
+	};
+
 }

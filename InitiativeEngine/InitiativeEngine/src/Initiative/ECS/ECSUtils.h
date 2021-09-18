@@ -45,6 +45,38 @@ namespace itv
 
 			return true;
 		}
+
+		inline TypeID operator[](size_t index) const
+		{
+			return mTypes[index];
+		}
+
+		bool ContainsTypesInside( const ArchetypeType& otherType ) const
+		{
+			if (mTypes.empty() && otherType.mTypes.empty()) { return true; }
+
+			TypeID typeToSearchFor = otherType[0];
+			size_t foundTypesCount = 0;
+
+			for (TypeID componentType : mTypes)
+			{
+				if (componentType == typeToSearchFor)
+				{
+					foundTypesCount++;
+
+					if (foundTypesCount == otherType.Size())
+					{
+						return true;
+					}
+
+					typeToSearchFor = otherType[foundTypesCount];
+
+				}
+			}
+
+			return false;
+		}
+
 	};
 
 	class Archetype;
@@ -52,6 +84,18 @@ namespace itv
 	class ArchetypeQuery
 	{
 	public:
+
+		using iterator = std::vector<Archetype*>::iterator;
+
+		ArchetypeQuery(std::vector<Archetype*>&& archetypesChosen) 
+			: mArchetypes( std::move( archetypesChosen ) )
+		{
+
+		}
+
+		inline Archetype& operator[](size_t index) { return *mArchetypes[index]; }
+
+		inline size_t Size() const				   { return mArchetypes.size(); }
 
 	private:
 
