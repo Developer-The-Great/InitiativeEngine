@@ -65,9 +65,9 @@ namespace itv
 		ITV_LOG(" has rotation? {0} ",a.HasComponent<rotation>());
 		ITV_LOG(" has scale?	{0} ",   a.HasComponent<scale>());
 
-		ArchetypeType type(std::vector<size_t>{ GenerateTypeHash<position>() });
+		//ArchetypeType type(std::vector<size_t>{ GenerateTypeHash<position>() });
 
-		ArchetypeQuery query = manager.GetArchetypesWith(type);
+		ArchetypeQuery query = manager.FindArchetypesWith<position,rotation>();  //manager.GetArchetypesWith(type);
 
 		for (size_t i = 0; i < query.Size(); i++)
 		{

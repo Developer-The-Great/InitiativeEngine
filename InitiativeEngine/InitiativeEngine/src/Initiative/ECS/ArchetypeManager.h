@@ -139,6 +139,16 @@ namespace itv
 
 		void UpdateEntityRecord(TypeID id,size_t newArchetypeIndex);
 
+		
+		template <typename... ComponentTypes>
+			typename std::enable_if
+			<sizeof...(ComponentTypes) == 0>
+				::type							collectComponentHashes(std::vector<size_t>& generatedHashes) {};
+
+		template<typename ComponentType,
+			typename... ComponentTypes>
+				void							collectComponentHashes(std::vector<size_t>& generatedHashes);
+
 	public:
 
 		ArchetypeManager();
@@ -146,6 +156,10 @@ namespace itv
 		inline size_t						    GetArchetypeCount() const { return mArchetypes.size(); }
 
 		ArchetypeQuery						    GetArchetypesWith(const ArchetypeType& type);
+
+		template<typename ComponentType,
+			typename... ComponentTypes>
+				ArchetypeQuery				    FindArchetypesWith();
 
 		std::optional
 			<std::reference_wrapper<Archetype>> GetArchetype(const ArchetypeType& types);
@@ -165,9 +179,6 @@ namespace itv
 			constexpr TypeID componentHash = GenerateTypeHash<Component>();
 			return mComponentHashToComponentActions.find(componentHash) != mComponentHashToComponentActions.end();
 		}
-		
-
-
 	};
 
 	//----------------------------------------------------------------------------------------------//
@@ -308,6 +319,25 @@ namespace itv
 		mComponentHashToComponentActions.insert( std::make_pair(componentHash, componentActions ) );
 	}
 
-	
+	template<typename ComponentType, typename ...ComponentTypes>
+	inline ArchetypeQuery ArchetypeManager::FindArchetypesWith()
+	{
+		std::vector<size_t> componentHashes; //TODO this can be an array
+		componentHashes.reserve(sizeof...(ComponentTypes) + 1);
+
+		collectComponentHashes<ComponentType, ComponentTypes...>(componentHashes);
+
+		ArchetypeType types( std::move( componentHashes ) );
+
+		return GetArchetypesWith( types );
+	}
+
+	template<typename ComponentType, typename ...ComponentTypes>
+	void ArchetypeManager::collectComponentHashes(std::vector<size_t>& generatedHashes)
+	{
+		generatedHashes.push_back(GenerateTypeHash<ComponentType>());
+
+		collectComponentHashes< ComponentTypes... >(generatedHashes);
+	}
 
 }
