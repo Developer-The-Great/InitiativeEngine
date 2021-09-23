@@ -17,8 +17,14 @@
 #include <list>
 #include <type_traits>
 #include <string>
+#include <optional>
 
 #include <unordered_map>
 #include <map>
+
+#include <cassert>
+#include <type_traits>
+
+typedef size_t TypeID;
 
 

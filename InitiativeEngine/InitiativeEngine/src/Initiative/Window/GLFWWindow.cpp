@@ -5,8 +5,6 @@
 
 namespace itv
 {
-	
-
 	GLFWWindow::GLFWWindow(const WindowInfo& pWindowInfo)
 	{
 		mData.Height = pWindowInfo.Height;
@@ -14,7 +12,6 @@ namespace itv
 		mData.Title = pWindowInfo.Title;
 
 		init(pWindowInfo);
-	
 
 	}
 

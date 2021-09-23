@@ -97,16 +97,22 @@
   <ItemGroup>
     <ClInclude Include="src\InitiativeEngine.h" />
     <ClInclude Include="src\Initiative\Application.h" />
+    <ClInclude Include="src\Initiative\Containers\sparse_set.h" />
     <ClInclude Include="src\Initiative\Core.h" />
+    <ClInclude Include="src\Initiative\ECS\ArchetypeManager.h" />
+    <ClInclude Include="src\Initiative\ECS\ComponentArray.h" />
+    <ClInclude Include="src\Initiative\ECS\ECSUtils.h" />
     <ClInclude Include="src\Initiative\EntryPoint.h" />
     <ClInclude Include="src\Initiative\Events\Event.h" />
     <ClInclude Include="src\Initiative\Events\WindowEvents.h" />
     <ClInclude Include="src\Initiative\Log.h" />
+    <ClInclude Include="src\Initiative\TypeHashing.h" />
     <ClInclude Include="src\Initiative\Window\Window.h" />
     <ClInclude Include="src\Initiative\Window\GLFWWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp" />
+    <ClCompile Include="src\Initiative\ECS\ArchetypeManager.cpp" />
     <ClCompile Include="src\Initiative\Log.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>

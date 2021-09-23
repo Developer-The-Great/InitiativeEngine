@@ -136,7 +136,9 @@ namespace itv
 		{
 			static_assert(std::is_base_of<EventBase, Event>::value);
 
-			static size_t eventHashCode = typeid(Event).hash_code();
+			static size_t eventHashCode = typeid(Event).hash_code(); 
+			//TODO type_info::hash_code is not guranteed to return unique values, this means that different types may return
+			//the same hash code.  
 
 			for (size_t i = 0; i < mObservers.size(); i++)
 			{
