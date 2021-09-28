@@ -57,6 +57,9 @@
     <ClInclude Include="src\Initiative\ECS\ECSUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Initiative\UnitTesting\UnitTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp">

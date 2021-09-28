@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -107,6 +107,7 @@
     <ClInclude Include="src\Initiative\Events\WindowEvents.h" />
     <ClInclude Include="src\Initiative\Log.h" />
     <ClInclude Include="src\Initiative\TypeHashing.h" />
+    <ClInclude Include="src\Initiative\UnitTesting\UnitTest.h" />
     <ClInclude Include="src\Initiative\Window\Window.h" />
     <ClInclude Include="src\Initiative\Window\GLFWWindow.h" />
   </ItemGroup>
