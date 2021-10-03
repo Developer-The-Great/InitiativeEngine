@@ -23,6 +23,8 @@ namespace itv
 
 	void Application::Run()
 	{
+		ArchetypeManager archetypeManager;
+
 		struct position
 		{
 			float x, y, z;
@@ -38,48 +40,38 @@ namespace itv
 			float x, y, z;
 		};
 
-		ArchetypeManager manager;
+		archetypeManager.RegisterComponent<position>();
+		archetypeManager.RegisterComponent<rotation>();
+		archetypeManager.RegisterComponent<scale>();
 
-		Entity a = manager.CreateEntity();
-		Entity b = manager.CreateEntity();
+		position pos;
+		rotation rot;
+		scale scale;
 
-		manager.RegisterComponent<position>();
-		manager.RegisterComponent<rotation>();
-		manager.RegisterComponent<scale>();
+		auto posEnt = archetypeManager.CreateEntity();
+		posEnt.AddComponent(pos);
 
-		position aPosition;
-		rotation aRotation;
-		scale aScale;
+		auto posEnt2 = archetypeManager.CreateEntity();
+		posEnt2.AddComponent(pos);
 
-		aPosition = { 0,0,0 };
+		auto posRotEnt = archetypeManager.CreateEntity();
+		posRotEnt.AddComponent(pos);
+		posRotEnt.AddComponent(rot);
 
-		a.AddComponent(aPosition);
-		a.AddComponent(aRotation);
-		a.AddComponent(aScale);
+		auto posRotScaleEnt = archetypeManager.CreateEntity();
+		posRotScaleEnt.AddComponent(pos);
+		posRotScaleEnt.AddComponent(rot);
+		posRotScaleEnt.AddComponent(scale);
 
-		aPosition = { 1,2,3 };
+		itv::ArchetypeQuery positionQuery = archetypeManager.FindArchetypesWith<position>();
 
-		b.AddComponent(aPosition);
-
-		ITV_LOG(" has position? {0} ",a.HasComponent<position>() );
-		ITV_LOG(" has rotation? {0} ",a.HasComponent<rotation>());
-		ITV_LOG(" has scale?	{0} ",   a.HasComponent<scale>());
-
-		//ArchetypeType type(std::vector<size_t>{ GenerateTypeHash<position>() });
-
-		ArchetypeQuery query = manager.FindArchetypesWith<position,rotation>();  //manager.GetArchetypesWith(type);
-
-		for (size_t i = 0; i < query.Size(); i++)
+		for (size_t i = 0; i < positionQuery.Size(); i++)
 		{
-			auto& archetype = query[i];
+			auto& archetype = positionQuery[i];
 
-			auto componentArrayHandle = archetype.GetComponentArray<position>();
+			auto componentArray = archetype.GetComponentArray<position>();
 
-			for (size_t i = 0; i < archetype.GetEntityCount(); i++)
-			{
-				position& ptr = componentArrayHandle[0];
-				ITV_LOG("position {0} , {1} , {2}", ptr.x, ptr.y, ptr.z);
-			}
+
 
 		}
 

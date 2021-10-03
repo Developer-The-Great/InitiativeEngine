@@ -49,7 +49,7 @@ namespace itv
 			return false;
 		}
 
-		bool contains(const Value& valueType)
+		bool contains(const Value& valueType) const
 		{
 			return valueType < mCapacity &&
 				mSparseContainer[static_cast<size_t>(valueType)] < mSize &&

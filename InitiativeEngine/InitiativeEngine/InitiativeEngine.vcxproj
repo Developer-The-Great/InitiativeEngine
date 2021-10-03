@@ -114,6 +114,7 @@
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp" />
     <ClCompile Include="src\Initiative\ECS\ArchetypeManager.cpp" />
+    <ClCompile Include="src\Initiative\ECS\ECSUtils.cpp" />
     <ClCompile Include="src\Initiative\Log.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>

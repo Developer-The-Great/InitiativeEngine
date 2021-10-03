@@ -9,7 +9,7 @@
 
 namespace itv
 {
-	#define INVALID_ENTITY 0
+	constexpr size_t invalid_entity_id = std::numeric_limits<size_t>::max();
 
 	class Archetype;
 	class ArchetypeManager;
@@ -23,7 +23,7 @@ namespace itv
 
 		TypeID mID;
 
-		static ArchetypeManager* sArchetypeManager;
+		ITV_API static ArchetypeManager* sArchetypeManager;
 
 		Entity(TypeID ID) : mID(ID) {};
 
@@ -71,7 +71,7 @@ namespace itv
 
 		static ArchetypeManager*				 sArchetypeManager;
 
-		void moveExistingEntity(TypeID id, Archetype& newArchetype);
+		ITV_API void moveExistingEntity(TypeID id, Archetype& newArchetype);
 
 		void instatiateNewComponentArray(const TypeID id);
 
@@ -103,21 +103,33 @@ namespace itv
 
 		const  ArchetypeType& GetArchetypeType() const			  { return mArchetypeType; }
 
-		inline size_t GetEntityIndex(Entity entity) const         { return mEntities.find_dense_index_of(entity); }
+		inline size_t GetEntityIndex(Entity entity) const         
+		{ 
+			#if _DEBUG
+
+			if (!mEntities.contains(entity))
+			{
+				return invalid_entity_id;
+			}
+
+			#endif
+
+			return mEntities.find_dense_index_of(entity); 
+		}
 
 		inline size_t GetEntityCount() const				      { return mEntities.size(); }
 
 		template<class Component> 
 			ComponentArrayHandle<Component> GetComponentArray(); //TODO Should probably be const
 
-		void* FindComponentArrayOfType(TypeID typeHash);
+		ITV_API void* FindComponentArrayOfType(TypeID typeHash);
 
 	};
 
 	typedef std::function<void(size_t sourceIndex,void* source, void* destination)>  componentArrayFunc;
 	typedef std::function<std::unique_ptr<ComponentArrayBase>()> componentArrayInstantiationFunc;
 
-	class ArchetypeManager 
+	class ArchetypeManager
 	{
 		friend class Entity;
 
@@ -135,11 +147,10 @@ namespace itv
 		std::unordered_map<TypeID, size_t>		 mEntityRecords;
 		std::vector<Archetype>					 mArchetypes;
 
-		Archetype& InstantiateArchetype(const ArchetypeType& types);
+		ITV_API Archetype&						InstantiateArchetype(const ArchetypeType& types);
 
-		void UpdateEntityRecord(TypeID id,size_t newArchetypeIndex);
+		ITV_API void						    UpdateEntityRecord(TypeID id,size_t newArchetypeIndex);
 
-		
 		template <typename... ComponentTypes>
 			typename std::enable_if
 			<sizeof...(ComponentTypes) == 0>
@@ -151,24 +162,27 @@ namespace itv
 
 	public:
 
-		ArchetypeManager();
+		ITV_API ArchetypeManager();
 
 		inline size_t						    GetArchetypeCount() const { return mArchetypes.size(); }
 
-		ArchetypeQuery						    GetArchetypesWith(const ArchetypeType& type);
+		ITV_API ArchetypeQuery					GetArchetypesWith(const ArchetypeType& type);
 
 		template<typename ComponentType,
 			typename... ComponentTypes>
 				ArchetypeQuery				    FindArchetypesWith();
 
-		std::optional
-			<std::reference_wrapper<Archetype>> GetArchetype(const ArchetypeType& types);
+		ITV_API std::optional
+			<std::reference_wrapper<Archetype>> GetArchetype(const ArchetypeType& type);
 
-		Archetype&							    GetRecord(TypeID id);
+		ITV_API std::optional
+			<std::reference_wrapper<Archetype>> GetArchetype(const ArchetypeType& type,size_t& outIndex);
 
-		Entity 									CreateEntity();
+		ITV_API Archetype& 						GetRecord(TypeID id);
 
-		componentArrayFunc&						GetComponentArrayMoveFunc(TypeID componentType);
+		ITV_API Entity 							CreateEntity();
+
+		ITV_API componentArrayFunc&				GetComponentArrayMoveFunc(TypeID componentType);
 
 		componentArrayInstantiationFunc&		GetComponentArrayInstantiationFunc(TypeID componentType);
 
@@ -195,7 +209,6 @@ namespace itv
 #ifdef _DEBUG
 		assert(sArchetypeManager->IsComponentRegistered<Component>());
 #endif 
-
 		//[1] Build ArchetypeType of Archetype we are looking for 
 
 		Archetype& oldArchetype = sArchetypeManager->GetRecord(mID);
@@ -203,12 +216,14 @@ namespace itv
 		ArchetypeType newType = oldArchetype.GetArchetypeTypeCopy();
 		newType.AddType(componentHash);
 
-		auto newArchetypeOptionalRef = sArchetypeManager->GetArchetype(newType);
-
+		size_t newArchetypeIndex;
+		auto newArchetypeOptionalRef = sArchetypeManager->GetArchetype(newType, newArchetypeIndex);
+		
 		//[2] Construct a new one destination archetype if it doesnt exist yet
 		if ( !newArchetypeOptionalRef.has_value() )
 		{
 			newArchetypeOptionalRef = sArchetypeManager->InstantiateArchetype(newType);
+			newArchetypeIndex = sArchetypeManager->GetArchetypeCount() - 1;
 		}
 
 		Archetype& newArchetype = newArchetypeOptionalRef.value().get();
@@ -222,6 +237,10 @@ namespace itv
 		const ArchetypeType& types = oldArchetype.GetArchetypeType();
 
 		size_t oldArchetypeIndex = oldArchetype.GetEntityIndex(mID);
+
+#ifdef _DEBUG
+		assert(oldArchetypeIndex != invalid_entity_id);
+#endif 
 
 		for (size_t i = 0; i < oldArchetype.GetComponentArrayCount(); i++)
 		{
@@ -248,7 +267,7 @@ namespace itv
 
 		//[5] Update entity record
 
-		sArchetypeManager->UpdateEntityRecord(mID, sArchetypeManager->GetArchetypeCount() - 1);
+		sArchetypeManager->UpdateEntityRecord(mID, newArchetypeIndex); //TODO this shoudlnt be last archetype
 
 		ITV_LOG("");
 	};
@@ -298,7 +317,7 @@ namespace itv
 	void ArchetypeManager::RegisterComponent()
 	{
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-		ITV_LOG("Registered Component with {0} ", componentHash);
+		ITV_LOG("generated component hash {0}", componentHash);
 
 		componentActionFuncs componentActions;
 
@@ -322,7 +341,7 @@ namespace itv
 	template<typename ComponentType, typename ...ComponentTypes>
 	inline ArchetypeQuery ArchetypeManager::FindArchetypesWith()
 	{
-		std::vector<size_t> componentHashes; //TODO this can be an array
+		std::vector<size_t> componentHashes;
 		componentHashes.reserve(sizeof...(ComponentTypes) + 1);
 
 		collectComponentHashes<ComponentType, ComponentTypes...>(componentHashes);
