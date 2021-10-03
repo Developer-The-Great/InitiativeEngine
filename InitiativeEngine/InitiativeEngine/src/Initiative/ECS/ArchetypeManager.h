@@ -297,7 +297,7 @@ namespace itv
 	template<class Component>
 	inline ComponentArrayHandle<Component> Archetype::GetComponentArray()
 	{
-		constexpr size_t componentHash = GenerateTypeHash<Component>();
+		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
 		void*  foundComponentArray = FindComponentArrayOfType(componentHash);
 
@@ -341,7 +341,7 @@ namespace itv
 	template<typename ComponentType, typename ...ComponentTypes>
 	inline ArchetypeQuery ArchetypeManager::FindArchetypesWith()
 	{
-		std::vector<size_t> componentHashes;
+		std::vector<TypeID> componentHashes;
 		componentHashes.reserve(sizeof...(ComponentTypes) + 1);
 
 		collectComponentHashes<ComponentType, ComponentTypes...>(componentHashes);
@@ -352,7 +352,7 @@ namespace itv
 	}
 
 	template<typename ComponentType, typename ...ComponentTypes>
-	void ArchetypeManager::collectComponentHashes(std::vector<size_t>& generatedHashes)
+	void ArchetypeManager::collectComponentHashes(std::vector<TypeID>& generatedHashes)
 	{
 		generatedHashes.push_back(GenerateTypeHash<ComponentType>());
 

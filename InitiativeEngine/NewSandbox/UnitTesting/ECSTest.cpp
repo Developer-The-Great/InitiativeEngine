@@ -49,9 +49,9 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 			char b;
 		};
 
-		constexpr size_t comp1Hash = GenerateTypeHash<TestComponent1>();
-		constexpr size_t comp2Hash = GenerateTypeHash<TestComponent2>();
-		constexpr size_t comp3Hash = GenerateTypeHash<TestComponent3>();
+		constexpr TypeID comp1Hash = GenerateTypeHash<TestComponent1>();
+		constexpr TypeID comp2Hash = GenerateTypeHash<TestComponent2>();
+		constexpr TypeID comp3Hash = GenerateTypeHash<TestComponent3>();
 
 		archetypeManager.RegisterComponent<TestComponent1>();
 		archetypeManager.RegisterComponent<TestComponent2>();
