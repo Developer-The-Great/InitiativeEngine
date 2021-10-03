@@ -5,13 +5,13 @@
 
 namespace itv
 {
-	class ITV_API Application
+	class Application
 	{
 	public:
-		Application();
+		ITV_API Application();
 		virtual ~Application() = default;
 
-		void Run();
+		ITV_API void Run();
 
 	private:
 

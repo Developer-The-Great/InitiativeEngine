@@ -19,7 +19,7 @@ namespace itv
 
 	class ObserverSubject;
 
-	class ITV_API ObserverBase
+	class ObserverBase
 	{
 		friend class ObserverSubject;
 	protected:
@@ -71,7 +71,7 @@ namespace itv
 
 	};
 
-	class ITV_API ObserverSubject final
+	class ObserverSubject final
 	{
 	public:
 		ObserverSubject(size_t vectorReserve = 4)

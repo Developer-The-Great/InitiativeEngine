@@ -25,6 +25,6 @@
 #include <cassert>
 #include <type_traits>
 
-typedef size_t TypeID;
+typedef std::uint64_t TypeID;
 
 
