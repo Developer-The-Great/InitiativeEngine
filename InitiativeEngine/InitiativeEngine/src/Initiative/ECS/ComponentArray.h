@@ -48,7 +48,7 @@ namespace itv
 
 			std::swap( sourceVector[sourceIndex], sourceVector[sourceVector.size() - 1] );
 
-			destinationVector.emplace_back( std::move(sourceVector[sourceVector.size() - 1]) );
+			destinationVector.emplace_back( std::move( sourceVector[sourceVector.size() - 1] ) );
 			sourceVector.pop_back();
 
 		}
@@ -91,6 +91,8 @@ namespace itv
 		{
 
 		}
+
+		inline size_t Size() const { return mSize; }
 
 		ComponentType& operator[](size_t index)
 		{

@@ -81,11 +81,35 @@ namespace itv
 
 	class Archetype;
 
+	class ArchetypeQueryIterator
+	{
+	private:
+
+		Archetype* mArchetypePtr = nullptr;
+
+
+	public:
+
+		ArchetypeQueryIterator(Archetype* pInitialPtr) : mArchetypePtr(pInitialPtr)
+		{
+
+		}
+
+		ITV_API Archetype& operator++();
+		
+		ITV_API Archetype& operator*();
+
+		ITV_API bool	   operator==(const ArchetypeQueryIterator& other);
+
+		ITV_API bool	   operator!=(const ArchetypeQueryIterator& other);
+		
+	};
+
 	class ArchetypeQuery
 	{
 	public:
 
-		using iterator = std::vector<Archetype*>::iterator;
+		using iterator = ArchetypeQueryIterator;
 
 		ArchetypeQuery(std::vector<Archetype*>&& archetypesChosen) 
 			: mArchetypes( std::move( archetypesChosen ) )
@@ -96,6 +120,10 @@ namespace itv
 		inline Archetype& operator[](size_t index) { return *mArchetypes[index]; }
 
 		inline size_t Size() const				   { return mArchetypes.size(); }
+
+		inline ITV_API ArchetypeQueryIterator begin();
+
+		inline ITV_API ArchetypeQueryIterator end();
 
 	private:
 

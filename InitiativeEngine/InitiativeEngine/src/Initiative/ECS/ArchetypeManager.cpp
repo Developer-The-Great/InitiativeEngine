@@ -55,11 +55,11 @@ namespace itv
 		//mArchetypes should never get resized because it will invalidate references to archetypes
 		mArchetypes.reserve(ARCHETYPE_RESERVE);
 
-#if _DEBUG
-		static int sArcetypeManagerCount = 0;
-		sArcetypeManagerCount++;
-		assert(sArcetypeManagerCount == 1); // there can only be one archetype manager
-#endif
+//#if _DEBUG
+//		static int sArcetypeManagerCount = 0;
+//		sArcetypeManagerCount++;
+//		assert(sArcetypeManagerCount == 1); // there can only be one archetype manager
+//#endif
 
 		Entity::sArchetypeManager = this;
 		Archetype::sArchetypeManager = this;
@@ -101,11 +101,25 @@ namespace itv
 
 	std::optional<std::reference_wrapper<Archetype>> ArchetypeManager::GetArchetype(const ArchetypeType& type)
 	{
-		for (Archetype& archetype : mArchetypes)
+		for ( Archetype& archetype : mArchetypes )
 		{
-			if (archetype.GetArchetypeType() == type)
+			if ( archetype.GetArchetypeType() == type )
 			{
-				return std::optional<std::reference_wrapper<Archetype>>{archetype};
+				return std::optional<std::reference_wrapper<Archetype>>{ archetype };
+			}
+		}
+
+		return std::nullopt;
+	}
+
+	ITV_API std::optional<std::reference_wrapper<Archetype>> ArchetypeManager::GetArchetype(const ArchetypeType& type, size_t& outIndex)
+	{
+		for (size_t i = 0; i < mArchetypes.size(); i++)
+		{
+			if (mArchetypes[i].GetArchetypeType() == type)
+			{
+				outIndex = i;
+				return std::optional<std::reference_wrapper<Archetype>>{mArchetypes[i]};
 			}
 		}
 
@@ -114,12 +128,13 @@ namespace itv
 
 	Archetype& ArchetypeManager::GetRecord(TypeID id)
 	{
+		ITV_LOG("getting record at {0} ", mEntityRecords.at(id));
 		return mArchetypes[mEntityRecords.at(id)];
 	}
 
 	Entity ArchetypeManager::CreateEntity()
 	{
-		static size_t nextEntityID = INVALID_ENTITY;
+		static size_t nextEntityID = 0;
 		nextEntityID++;
 		
 		mArchetypes[DEFAULT_ARCHETYPE].mEntities.push_back_unique(Entity(nextEntityID));
