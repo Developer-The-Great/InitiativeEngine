@@ -2,6 +2,7 @@
 #include "Containers\sparse_set.h"
 #include "ECS\ArchetypeManager.h"
 #include "Log.h"
+#include "math.h"
 
 namespace itv
 {
@@ -23,6 +24,9 @@ namespace itv
 
 	void Application::Run()
 	{
+		math::vec3 test(1, 1, 1);
+		math::cross(test, math::vec3(4, 4, 5));
+
 		ArchetypeManager archetypeManager;
 
 		struct position
