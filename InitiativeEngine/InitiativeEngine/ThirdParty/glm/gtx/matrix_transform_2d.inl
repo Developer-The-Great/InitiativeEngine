@@ -3,7 +3,7 @@
 
 #include "../trigonometric.hpp"
 
-namespace glm
+namespace itv::math
 {
 
 	template<typename T, qualifier Q>
@@ -65,4 +65,4 @@ namespace glm
 		return m * Result;
 	}
 
-}//namespace glm
+}//namespace itv::math

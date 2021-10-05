@@ -32,7 +32,7 @@
 #	pragma message("GLM: GLM_EXT_quaternion_common extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_quaternion_common
 	/// @{
@@ -130,6 +130,6 @@ namespace glm
 	GLM_FUNC_DECL vec<4, bool, Q> isinf(qua<T, Q> const& x);
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 
 #include "quaternion_common.inl"

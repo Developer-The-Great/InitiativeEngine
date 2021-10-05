@@ -25,7 +25,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_vector_query
 	/// @{
@@ -61,6 +61,6 @@ namespace glm
 	GLM_FUNC_DECL bool areOrthonormal(vec<L, T, Q> const& v0, vec<L, T, Q> const& v1, T const& epsilon);
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "vector_query.inl"

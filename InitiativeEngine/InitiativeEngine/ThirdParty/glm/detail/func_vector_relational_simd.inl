@@ -1,6 +1,6 @@
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 
 }//namespace detail
-}//namespace glm
+}//namespace itv::math

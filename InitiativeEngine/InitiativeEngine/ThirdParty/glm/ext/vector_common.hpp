@@ -21,7 +21,7 @@
 #	pragma message("GLM: GLM_EXT_vector_common extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_vector_common
 	/// @{
@@ -223,6 +223,6 @@ namespace glm
 	GLM_FUNC_DECL vec<L, uint, Q> uround(vec<L, T, Q> const& x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "vector_common.inl"

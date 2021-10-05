@@ -1,10 +1,10 @@
 /// @ref gtx_projection
 
-namespace glm
+namespace itv::math
 {
 	template<typename genType>
 	GLM_FUNC_QUALIFIER genType proj(genType const& x, genType const& Normal)
 	{
-		return glm::dot(x, Normal) / glm::dot(Normal, Normal) * Normal;
+		return math::dot(x, Normal) / math::dot(Normal, Normal) * Normal;
 	}
-}//namespace glm
+}//namespace itv::math

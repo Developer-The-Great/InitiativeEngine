@@ -13,7 +13,7 @@
 #include "../gtc/constants.hpp"
 #include "../gtc/matrix_transform.hpp"
 
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	struct qua
@@ -184,7 +184,7 @@ namespace glm
 
 	template<typename T, qualifier Q>
 	GLM_FUNC_DECL GLM_CONSTEXPR bool operator!=(qua<T, Q> const& q1, qua<T, Q> const& q2);
-} //namespace glm
+} //namespace itv::math
 
 #ifndef GLM_EXTERNAL_TEMPLATE
 #include "type_quat.inl"

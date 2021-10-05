@@ -1,6 +1,6 @@
 /// @ref gtx_integer
 
-namespace glm
+namespace itv::math
 {
 	// pow
 	GLM_FUNC_QUALIFIER int pow(int x, uint y)
@@ -182,4 +182,4 @@ namespace detail
 
 #endif//(GLM_COMPILER)
 
-}//namespace glm
+}//namespace itv::math

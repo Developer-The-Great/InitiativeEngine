@@ -29,7 +29,7 @@
 #	endif
 #endif
 
-namespace glm{
+namespace itv::math{
 	/// @addtogroup gtx_easing
 	/// @{
 
@@ -214,6 +214,6 @@ namespace glm{
 	GLM_FUNC_DECL genType bounceEaseInOut(genType const& a);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "easing.inl"

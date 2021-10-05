@@ -26,7 +26,7 @@
 #	pragma message("GLM: GLM_EXT_quaternion_double extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_quaternion_double
 	/// @{
@@ -35,5 +35,5 @@ namespace glm
 	typedef qua<double, defaultp>		dquat;
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 

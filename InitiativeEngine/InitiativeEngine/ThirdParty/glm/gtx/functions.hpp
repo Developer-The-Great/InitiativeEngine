@@ -26,7 +26,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_functions
 	/// @{
@@ -50,7 +50,7 @@ namespace glm
 		vec<2, T, Q> const& StandardDeviation);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "functions.inl"
 

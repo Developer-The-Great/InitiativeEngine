@@ -1,4 +1,4 @@
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 	template<length_t C, length_t R, typename T, qualifier Q, bool Aligned>
@@ -35,4 +35,4 @@ namespace detail
 		}
 	};
 }//namespace detail
-}//namespace glm
+}//namespace itv::math

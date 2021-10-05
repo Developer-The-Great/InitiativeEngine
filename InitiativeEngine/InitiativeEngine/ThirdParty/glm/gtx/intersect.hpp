@@ -29,7 +29,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_intersect
 	/// @{
@@ -87,6 +87,6 @@ namespace glm
 		genType & intersectionPosition2 = genType(), genType & intersectionNormal2 = genType());
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "intersect.inl"

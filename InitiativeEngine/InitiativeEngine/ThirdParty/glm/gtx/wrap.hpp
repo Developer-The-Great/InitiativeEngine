@@ -26,12 +26,12 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_wrap
 	/// @{
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "wrap.inl"

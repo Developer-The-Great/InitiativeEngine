@@ -5,7 +5,7 @@
 
 #if GLM_ARCH & GLM_ARCH_SSE2_BIT
 
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 	template<qualifier Q>
@@ -32,6 +32,6 @@ namespace detail
 	};
 #	endif
 }//namespace detail
-}//namespace glm
+}//namespace itv::math
 
 #endif//GLM_ARCH & GLM_ARCH_SSE2_BIT

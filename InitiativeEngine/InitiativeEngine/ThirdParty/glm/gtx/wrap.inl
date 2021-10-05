@@ -1,6 +1,6 @@
 /// @ref gtx_wrap
 
-namespace glm
+namespace itv::math
 {
 
-}//namespace glm
+}//namespace itv::math

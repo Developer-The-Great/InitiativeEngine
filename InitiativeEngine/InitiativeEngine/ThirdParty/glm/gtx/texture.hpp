@@ -25,7 +25,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_texture
 	/// @{
@@ -40,7 +40,7 @@ namespace glm
 	T levels(vec<L, T, Q> const& Extent);
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "texture.inl"
 

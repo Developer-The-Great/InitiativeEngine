@@ -2,7 +2,7 @@
 #include "Containers\sparse_set.h"
 #include "ECS\ArchetypeManager.h"
 #include "Log.h"
-#include "glm.hpp"
+#include "math.h"
 
 namespace itv
 {
@@ -24,8 +24,8 @@ namespace itv
 
 	void Application::Run()
 	{
-		glm::vec3 test(1, 1, 1);
-		glm::cross(test, glm::vec3(4, 4, 5));
+		math::vec3 test(1, 1, 1);
+		math::cross(test, math::vec3(4, 4, 5));
 
 		ArchetypeManager archetypeManager;
 

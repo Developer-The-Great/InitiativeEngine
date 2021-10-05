@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_closest_point
 	/// @{
@@ -44,6 +44,6 @@ namespace glm
 		vec<2, T, Q> const& b);
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "closest_point.inl"

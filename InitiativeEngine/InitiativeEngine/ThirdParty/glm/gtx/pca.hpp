@@ -17,21 +17,21 @@
 ///
 /// Example:
 /// ```
-/// std::vector<glm::dvec3> ptData;
+/// std::vector<math::dvec3> ptData;
 /// // ... fill ptData with some point data, e.g. vertices
 /// 
-/// glm::dvec3 center = computeCenter(ptData);
+/// math::dvec3 center = computeCenter(ptData);
 /// 
-/// glm::dmat3 covarMat = glm::computeCovarianceMatrix(ptData.data(), ptData.size(), center);
+/// math::dmat3 covarMat = math::computeCovarianceMatrix(ptData.data(), ptData.size(), center);
 /// 
-/// glm::dvec3 evals;
-/// glm::dmat3 evecs;
-/// int evcnt = glm::findEigenvaluesSymReal(covarMat, evals, evecs);
+/// math::dvec3 evals;
+/// math::dmat3 evecs;
+/// int evcnt = math::findEigenvaluesSymReal(covarMat, evals, evecs);
 /// 
 /// if(evcnt != 3)
 ///     // ... error handling
 /// 
-/// glm::sortEigenvalues(evals, evecs);
+/// math::sortEigenvalues(evals, evecs);
 /// 
 /// // ... now evecs[0] points in the direction (symmetric) of the largest spatial distribuion within ptData
 /// ```
@@ -51,7 +51,7 @@
 #	endif
 #endif
 
-namespace glm {
+namespace itv::math {
 	/// @addtogroup gtx_pca
 	/// @{
 
@@ -106,6 +106,6 @@ namespace glm {
 	GLM_INLINE void sortEigenvalues(vec<4, T, Q>& eigenvalues, mat<4, 4, T, Q>& eigenvectors);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "pca.inl"

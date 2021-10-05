@@ -1,6 +1,6 @@
 /// @ref gtx_matrix_query
 
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER bool isNull(mat<2, 2, T, Q> const& m, T const& epsilon)
@@ -35,7 +35,7 @@ namespace glm
 		bool result = true;
 		for(length_t i = 0; result && i < m.length(); ++i)
 		{
-			for(length_t j = 0; result && j < glm::min(i, m[0].length()); ++j)
+			for(length_t j = 0; result && j < math::min(i, m[0].length()); ++j)
 				result = abs(m[i][j]) <= epsilon;
 			if(result && i < m[0].length())
 				result = abs(m[i][i] - 1) <= epsilon;
@@ -110,4 +110,4 @@ namespace glm
 		}
 		return result;
 	}
-}//namespace glm
+}//namespace itv::math

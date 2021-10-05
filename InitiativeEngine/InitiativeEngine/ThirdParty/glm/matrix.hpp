@@ -28,7 +28,7 @@
 #include "mat4x3.hpp"
 #include "mat4x4.hpp"
 
-namespace glm {
+namespace itv::math {
 namespace detail
 {
 	template<length_t C, length_t R, typename T, qualifier Q>
@@ -156,6 +156,6 @@ namespace detail
 	GLM_FUNC_DECL mat<C, R, T, Q> inverse(mat<C, R, T, Q> const& m);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "detail/func_matrix.inl"

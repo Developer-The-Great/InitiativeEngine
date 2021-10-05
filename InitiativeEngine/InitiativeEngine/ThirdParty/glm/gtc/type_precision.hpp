@@ -43,7 +43,7 @@
 #	pragma message("GLM: GLM_GTC_type_precision extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	///////////////////////////
 	// Signed int vector types
@@ -2089,6 +2089,6 @@ namespace glm
 #	endif//GLM_FORCE_SINGLE_ONLY
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "type_precision.inl"

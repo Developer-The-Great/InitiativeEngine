@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm{
+namespace itv::math{
 namespace gtx
 {
 	/// @addtogroup gtx_optimum_pow
@@ -49,6 +49,6 @@ namespace gtx
 
 	/// @}
 }//namespace gtx
-}//namespace glm
+}//namespace itv::math
 
 #include "optimum_pow.inl"

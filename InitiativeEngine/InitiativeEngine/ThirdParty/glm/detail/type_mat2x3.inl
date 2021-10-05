@@ -1,4 +1,4 @@
-namespace glm
+namespace itv::math
 {
 	// -- Constructors --
 
@@ -507,4 +507,4 @@ namespace glm
 	{
 		return (m1[0] != m2[0]) || (m1[1] != m2[1]);
 	}
-} //namespace glm
+} //namespace itv::math

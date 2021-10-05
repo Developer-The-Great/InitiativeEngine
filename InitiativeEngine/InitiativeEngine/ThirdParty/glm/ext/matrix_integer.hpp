@@ -29,7 +29,7 @@
 #	pragma message("GLM: GLM_EXT_matrix_integer extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_matrix_integer
 	/// @{
@@ -86,6 +86,6 @@ namespace glm
 	GLM_FUNC_DECL T determinant(mat<C, R, T, Q> const& m);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "matrix_integer.inl"

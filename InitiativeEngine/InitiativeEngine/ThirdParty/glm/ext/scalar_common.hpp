@@ -20,7 +20,7 @@
 #	pragma message("GLM: GLM_EXT_scalar_common extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_scalar_common
 	/// @{
@@ -176,6 +176,6 @@ namespace glm
 	GLM_FUNC_DECL uint uround(genType const& x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "scalar_common.inl"

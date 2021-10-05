@@ -24,7 +24,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_integer
 	/// @{
@@ -71,6 +71,6 @@ namespace glm
 	GLM_FUNC_DECL uint nlz(uint x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "integer.inl"

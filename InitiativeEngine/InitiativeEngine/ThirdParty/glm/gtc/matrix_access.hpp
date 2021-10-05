@@ -19,7 +19,7 @@
 #	pragma message("GLM: GLM_GTC_matrix_access extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtc_matrix_access
 	/// @{
@@ -55,6 +55,6 @@ namespace glm
 		typename genType::col_type const& x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "matrix_access.inl"

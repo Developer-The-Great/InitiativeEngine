@@ -1,6 +1,6 @@
 /// @ref core
 
-namespace glm
+namespace itv::math
 {
 
-}//namespace glm
+}//namespace itv::math

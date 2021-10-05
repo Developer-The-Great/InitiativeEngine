@@ -11,7 +11,7 @@
 #endif
 #include <cstddef>
 
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	struct vec<3, T, Q>
@@ -428,7 +428,7 @@ namespace glm
 
 	template<qualifier Q>
 	GLM_FUNC_DECL GLM_CONSTEXPR vec<3, bool, Q> operator||(vec<3, bool, Q> const& v1, vec<3, bool, Q> const& v2);
-}//namespace glm
+}//namespace itv::math
 
 #ifndef GLM_EXTERNAL_TEMPLATE
 #include "type_vec3.inl"

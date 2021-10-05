@@ -19,7 +19,7 @@
 #	pragma message("GLM: GLM_EXT_vector_reciprocal extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_vector_reciprocal
 	/// @{
@@ -130,6 +130,6 @@ namespace glm
 	GLM_FUNC_DECL genType acoth(genType x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "vector_reciprocal.inl"

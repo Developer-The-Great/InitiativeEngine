@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_color_space_YCoCg
 	/// @{
@@ -55,6 +55,6 @@ namespace glm
 		vec<3, T, Q> const& YCoCgColor);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "color_space_YCoCg.inl"

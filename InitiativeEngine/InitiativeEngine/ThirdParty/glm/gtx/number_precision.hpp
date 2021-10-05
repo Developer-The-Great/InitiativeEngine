@@ -26,7 +26,7 @@
 #	endif
 #endif
 
-namespace glm{
+namespace itv::math{
 namespace gtx
 {
 	/////////////////////////////
@@ -56,6 +56,6 @@ namespace gtx
 
 	/// @}
 }//namespace gtx
-}//namespace glm
+}//namespace itv::math
 
 #include "number_precision.inl"

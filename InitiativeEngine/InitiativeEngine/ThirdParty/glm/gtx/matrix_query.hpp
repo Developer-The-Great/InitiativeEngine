@@ -26,7 +26,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_matrix_query
 	/// @{
@@ -72,6 +72,6 @@ namespace glm
 	GLM_FUNC_DECL bool isOrthogonal(matType<C, R, T, Q> const& m, T const& epsilon);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "matrix_query.inl"

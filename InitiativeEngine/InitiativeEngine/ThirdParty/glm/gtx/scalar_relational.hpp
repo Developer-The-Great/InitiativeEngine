@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_scalar_relational
 	/// @{
@@ -31,6 +31,6 @@ namespace glm
 
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "scalar_relational.inl"

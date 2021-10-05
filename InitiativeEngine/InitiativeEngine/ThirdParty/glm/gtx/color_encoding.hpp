@@ -27,7 +27,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_color_encoding
 	/// @{
@@ -49,6 +49,6 @@ namespace glm
 	GLM_FUNC_DECL vec<3, T, Q> convertD65XYZToD50XYZ(vec<3, T, Q> const& ColorD65XYZ);
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 
 #include "color_encoding.inl"

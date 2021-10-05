@@ -4,7 +4,7 @@
 #include "epsilon.hpp"
 #include <limits>
 
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER vec<3, T, Q> eulerAngles(qua<T, Q> const& x)
@@ -200,7 +200,7 @@ namespace glm
 
 		return quat_cast(Result);
 	}
-}//namespace glm
+}//namespace itv::math
 
 #if GLM_CONFIG_SIMD == GLM_ENABLE
 #	include "quaternion_simd.inl"

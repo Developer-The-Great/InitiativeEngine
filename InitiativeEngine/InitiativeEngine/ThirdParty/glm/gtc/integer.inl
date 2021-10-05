@@ -1,6 +1,6 @@
 /// @ref gtc_integer
 
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 	template<length_t L, typename T, qualifier Q, bool Aligned>
@@ -30,4 +30,4 @@ namespace detail
 		};
 #	endif//GLM_HAS_BITSCAN_WINDOWS
 }//namespace detail
-}//namespace glm
+}//namespace itv::math

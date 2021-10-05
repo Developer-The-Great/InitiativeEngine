@@ -1,4 +1,4 @@
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 	GLM_FUNC_QUALIFIER float overflow()
@@ -238,4 +238,4 @@ namespace detail
 	}
 
 }//namespace detail
-}//namespace glm
+}//namespace itv::math

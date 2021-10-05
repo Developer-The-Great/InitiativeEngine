@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_extend
 	/// @{
@@ -37,6 +37,6 @@ namespace glm
 		typename genType::value_type const Length);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "extend.inl"

@@ -1,4 +1,4 @@
-namespace glm
+namespace itv::math
 {
 	template<typename genType>
 	GLM_FUNC_QUALIFIER GLM_CONSTEXPR genType identity()
@@ -150,4 +150,4 @@ namespace glm
             return lookAtRH(eye, center, up);
 #       endif
 	}
-}//namespace glm
+}//namespace itv::math

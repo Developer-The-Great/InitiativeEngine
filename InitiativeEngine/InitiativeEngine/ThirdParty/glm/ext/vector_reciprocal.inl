@@ -3,7 +3,7 @@
 #include "../trigonometric.hpp"
 #include <limits>
 
-namespace glm
+namespace itv::math
 {
 	// sec
 	template<length_t L, typename T, qualifier Q>
@@ -76,7 +76,7 @@ namespace glm
 	GLM_FUNC_QUALIFIER vec<L, T, Q> coth(vec<L, T, Q> const& x)
 	{
 		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'coth' only accept floating-point inputs");
-		return glm::cosh(x) / glm::sinh(x);
+		return math::cosh(x) / math::sinh(x);
 	}
 
 	// asech
@@ -102,4 +102,4 @@ namespace glm
 		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'acoth' only accept floating-point inputs");
 		return detail::functor1<vec, L, T, T, Q>::call(atanh, static_cast<T>(1) / x);
 	}
-}//namespace glm
+}//namespace itv::math

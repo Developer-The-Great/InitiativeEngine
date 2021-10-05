@@ -25,7 +25,7 @@
 #include "../gtc/quaternion.hpp"
 #include "../gtx/dual_quaternion.hpp"
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_type_trait
 	/// @{
@@ -80,6 +80,6 @@ namespace glm
 	};
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "type_trait.inl"

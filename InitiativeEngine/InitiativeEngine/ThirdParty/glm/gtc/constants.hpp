@@ -19,7 +19,7 @@
 #	pragma message("GLM: GLM_GTC_constants extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtc_constants
 	/// @{
@@ -160,6 +160,6 @@ namespace glm
 	GLM_FUNC_DECL GLM_CONSTEXPR genType golden_ratio();
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 
 #include "constants.inl"

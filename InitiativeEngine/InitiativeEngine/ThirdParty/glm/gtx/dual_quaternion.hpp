@@ -28,7 +28,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_dual_quaternion
 	/// @{
@@ -269,6 +269,6 @@ namespace glm
 #endif
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 
 #include "dual_quaternion.inl"

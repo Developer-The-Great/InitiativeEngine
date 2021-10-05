@@ -26,7 +26,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_euler_angles
 	/// @{
@@ -330,6 +330,6 @@ namespace glm
 											T & t3);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "euler_angles.inl"

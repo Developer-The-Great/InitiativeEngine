@@ -23,7 +23,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_color_space
 	/// @{
@@ -67,6 +67,6 @@ namespace glm
 		vec<3, T, Q> const& color);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "color_space.inl"

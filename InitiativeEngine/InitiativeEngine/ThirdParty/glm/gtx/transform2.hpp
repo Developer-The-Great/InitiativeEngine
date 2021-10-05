@@ -25,7 +25,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_transform2
 	/// @{
@@ -84,6 +84,6 @@ namespace glm
 	GLM_FUNC_DECL mat<4, 4, T, Q> scaleBias(mat<4, 4, T, Q> const& m, T scale, T bias);
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "transform2.inl"

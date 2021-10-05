@@ -24,7 +24,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_matrix_major_storage
 	/// @{
@@ -114,6 +114,6 @@ namespace glm
 		mat<4, 4, T, Q> const& m);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "matrix_major_storage.inl"

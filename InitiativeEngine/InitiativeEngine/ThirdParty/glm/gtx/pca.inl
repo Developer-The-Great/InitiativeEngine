@@ -6,7 +6,7 @@
 #include <utility>
 #endif
 
-namespace glm {
+namespace itv::math {
 
 
 	template<length_t D, typename T, qualifier Q>
@@ -26,7 +26,7 @@ namespace glm {
 	template<length_t D, typename T, qualifier Q, typename I>
 	GLM_FUNC_DECL mat<D, D, T, Q> computeCovarianceMatrix(I const& b, I const& e)
 	{
-		glm::mat<D, D, T, Q> m(0);
+		math::mat<D, D, T, Q> m(0);
 
 		size_t cnt = 0;
 		for(I i = b; i != e; i++)
@@ -47,8 +47,8 @@ namespace glm {
 	template<length_t D, typename T, qualifier Q, typename I>
 	GLM_FUNC_DECL mat<D, D, T, Q> computeCovarianceMatrix(I const& b, I const& e, vec<D, T, Q> const& c)
 	{
-		glm::mat<D, D, T, Q> m(0);
-		glm::vec<D, T, Q> v;
+		math::mat<D, D, T, Q> m(0);
+		math::vec<D, T, Q> v;
 
 		size_t cnt = 0;
 		for(I i = b; i != e; i++)
@@ -71,23 +71,23 @@ namespace glm {
 		template<typename T>
 		GLM_INLINE T transferSign(T const& v, T const& s)
 		{
-			return ((s) >= 0 ? glm::abs(v) : -glm::abs(v));
+			return ((s) >= 0 ? math::abs(v) : -math::abs(v));
 		}
 
 		template<typename T>
 		GLM_INLINE T pythag(T const& a, T const& b) {
 			static const T epsilon = static_cast<T>(0.0000001);
-			T absa = glm::abs(a);
-			T absb = glm::abs(b);
+			T absa = math::abs(a);
+			T absb = math::abs(b);
 			if(absa > absb) {
 				absb /= absa;
 				absb *= absb;
-				return absa * glm::sqrt(static_cast<T>(1) + absb);
+				return absa * math::sqrt(static_cast<T>(1) + absb);
 			}
-			if(glm::equal<T>(absb, 0, epsilon)) return static_cast<T>(0);
+			if(math::equal<T>(absb, 0, epsilon)) return static_cast<T>(0);
 			absa /= absb;
 			absa *= absa;
-			return absb * glm::sqrt(static_cast<T>(1) + absa);
+			return absb * math::sqrt(static_cast<T>(1) + absa);
 		}
 
 	}
@@ -124,9 +124,9 @@ namespace glm {
 			{
 				for(k = 1; k <= l; k++)
 				{
-					scale += glm::abs(a[(i - 1) * D + (k - 1)]);
+					scale += math::abs(a[(i - 1) * D + (k - 1)]);
 				}
-				if(glm::equal<T>(scale, 0, epsilon))
+				if(math::equal<T>(scale, 0, epsilon))
 				{
 					e[i - 1] = a[(i - 1) * D + (l - 1)];
 				}
@@ -138,7 +138,7 @@ namespace glm {
 						h += a[(i - 1) * D + (k - 1)] * a[(i - 1) * D + (k - 1)];
 					}
 					f = a[(i - 1) * D + (l - 1)];
-					g = ((f >= 0) ? -glm::sqrt(h) : glm::sqrt(h));
+					g = ((f >= 0) ? -math::sqrt(h) : math::sqrt(h));
 					e[i - 1] = scale * g;
 					h -= f * g;
 					a[(i - 1) * D + (l - 1)] = f - g;
@@ -181,7 +181,7 @@ namespace glm {
 		for(i = 1; i <= D; i++)
 		{
 			l = i - 1;
-			if(!glm::equal<T>(d[i - 1], 0, epsilon))
+			if(!math::equal<T>(d[i - 1], 0, epsilon))
 			{
 				for(j = 1; j <= l; j++)
 				{
@@ -222,8 +222,8 @@ namespace glm {
 			{
 				for(m = l; m <= D - 1; m++)
 				{
-					dd = glm::abs(d[m - 1]) + glm::abs(d[m - 1 + 1]);
-					if(glm::equal<T>(glm::abs(e[m - 1]) + dd, dd, epsilon))
+					dd = math::abs(d[m - 1]) + math::abs(d[m - 1 + 1]);
+					if(math::equal<T>(math::abs(e[m - 1]) + dd, dd, epsilon))
 						break;
 				}
 				if(m != l)
@@ -242,7 +242,7 @@ namespace glm {
 						f = s * e[i - 1];
 						b = c * e[i - 1];
 						e[i - 1 + 1] = r = pythag(f, g);
-						if(glm::equal<T>(r, 0, epsilon))
+						if(math::equal<T>(r, 0, epsilon))
 						{
 							d[i - 1 + 1] -= p;
 							e[m - 1] = 0;
@@ -261,7 +261,7 @@ namespace glm {
 							a[(k - 1) * D + (i - 1)] = c * a[(k - 1) * D + (i - 1)] - s * f;
 						}
 					}
-					if(glm::equal<T>(r, 0, epsilon) && (i >= l))
+					if(math::equal<T>(r, 0, epsilon) && (i >= l))
 						continue;
 					d[l - 1] -= p;
 					e[l - 1] = g;
@@ -340,4 +340,4 @@ namespace glm {
 		}
 	}
 
-}//namespace glm
+}//namespace itv::math

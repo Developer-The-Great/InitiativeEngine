@@ -6,7 +6,7 @@
 #if GLM_ARCH & GLM_ARCH_NEON_BIT
 #include <arm_neon.h>
 
-namespace glm {
+namespace itv::math {
 	namespace neon {
 		static inline float32x4_t dupq_lane(float32x4_t vsrc, int lane) {
 			switch(lane) {
@@ -151,5 +151,5 @@ namespace glm {
 #endif
 		}
 	} //namespace neon
-} // namespace glm
+} // namespace itv::math
 #endif // GLM_ARCH & GLM_ARCH_NEON_BIT

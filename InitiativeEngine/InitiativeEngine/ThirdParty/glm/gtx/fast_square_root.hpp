@@ -27,7 +27,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_fast_square_root
 	/// @{
@@ -93,6 +93,6 @@ namespace glm
 	GLM_FUNC_DECL vec<L, T, Q> fastNormalize(vec<L, T, Q> const& x);
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "fast_square_root.inl"

@@ -27,7 +27,7 @@
 #	pragma message("GLM: GLM_GTC_integer extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtc_integer
 	/// @{
@@ -38,6 +38,6 @@ namespace glm
 	GLM_FUNC_DECL genIUType log2(genIUType x);
 
 	/// @}
-} //namespace glm
+} //namespace itv::math
 
 #include "integer.inl"

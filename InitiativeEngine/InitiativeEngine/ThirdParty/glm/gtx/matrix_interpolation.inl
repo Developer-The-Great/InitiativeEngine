@@ -4,7 +4,7 @@
 
 #include <limits>
 
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER void axisAngle(mat<4, 4, T, Q> const& m, vec<3, T, Q>& axis, T& angle)
@@ -100,7 +100,7 @@ namespace glm
 			angle = acos(angleCos);
 		}
 
-        axis = glm::normalize(glm::vec<3, T, Q>(
+        axis = math::normalize(math::vec<3, T, Q>(
             m[1][2] - m[2][1], m[2][0] - m[0][2], m[0][1] - m[1][0]));
 	}
 
@@ -143,4 +143,4 @@ namespace glm
 		out[3][2] = m1[3][2] + delta * (m2[3][2] - m1[3][2]);
 		return out;
 	}
-}//namespace glm
+}//namespace itv::math

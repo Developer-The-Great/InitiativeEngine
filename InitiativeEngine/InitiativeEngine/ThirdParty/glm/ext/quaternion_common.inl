@@ -1,4 +1,4 @@
-namespace glm
+namespace itv::math
 {
 	template<typename T, qualifier Q>
 	GLM_FUNC_QUALIFIER qua<T, Q> mix(qua<T, Q> const& x, qua<T, Q> const& y, T a)
@@ -104,7 +104,7 @@ namespace glm
         {
             // Graphics Gems III, page 96
             T angle = acos(cosTheta);
-            T phi = angle + k * glm::pi<T>();
+            T phi = angle + k * math::pi<T>();
             return (sin(angle - a * phi)* x + sin(a * phi) * z) / sin(angle);
         }
     }
@@ -136,7 +136,7 @@ namespace glm
 
 		return vec<4, bool, Q>(isinf(q.x), isinf(q.y), isinf(q.z), isinf(q.w));
 	}
-}//namespace glm
+}//namespace itv::math
 
 #if GLM_CONFIG_SIMD == GLM_ENABLE
 #	include "quaternion_common_simd.inl"

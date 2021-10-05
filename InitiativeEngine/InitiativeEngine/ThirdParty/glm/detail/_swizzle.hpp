@@ -1,6 +1,6 @@
 #pragma once
 
-namespace glm{
+namespace itv::math{
 namespace detail
 {
 	// Internal class for implementing swizzle operators
@@ -268,9 +268,9 @@ namespace detail
 	}
 
 }//namespace detail
-}//namespace glm
+}//namespace itv::math
 
-namespace glm
+namespace itv::math
 {
 	namespace detail
 	{

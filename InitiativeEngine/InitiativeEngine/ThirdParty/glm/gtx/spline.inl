@@ -1,6 +1,6 @@
 /// @ref gtx_spline
 
-namespace glm
+namespace itv::math
 {
 	template<typename genType>
 	GLM_FUNC_QUALIFIER genType catmullRom
@@ -57,4 +57,4 @@ namespace glm
 	{
 		return ((v1 * s + v2) * s + v3) * s + v4;
 	}
-}//namespace glm
+}//namespace itv::math

@@ -20,13 +20,13 @@
 #	pragma message("GLM: GLM_EXT_scalar_packing extension included")
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup ext_scalar_packing
 	/// @{
 
 
 	/// @}
-}// namespace glm
+}// namespace itv::math
 
 #include "scalar_packing.inl"

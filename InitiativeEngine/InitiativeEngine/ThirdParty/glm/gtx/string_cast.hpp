@@ -30,7 +30,7 @@
 #	endif
 #endif
 
-namespace glm
+namespace itv::math
 {
 	/// @addtogroup gtx_string_cast
 	/// @{
@@ -41,6 +41,6 @@ namespace glm
 	GLM_FUNC_DECL std::string to_string(genType const& x);
 
 	/// @}
-}//namespace glm
+}//namespace itv::math
 
 #include "string_cast.inl"
