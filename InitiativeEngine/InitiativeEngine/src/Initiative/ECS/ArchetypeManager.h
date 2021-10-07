@@ -2,6 +2,7 @@
 #include "Initiative\Core.h"
 #include "Initiative\ECS\ComponentArray.h"
 #include "Initiative\ECS\ECSUtils.h"
+#include "Initiative\ECS\ECSSystemBase.h"
 
 #include "Initiative\TypeHashing.h"
 #include "Initiative\Containers\sparse_set.h"
@@ -81,14 +82,14 @@ namespace itv
 
 		Archetype(const Archetype& other) = delete;
 
+		Archetype& operator=(const Archetype& other) = delete;
+
 		Archetype(Archetype&& other)
 		{
 			mArchetypeType = std::move(other.mArchetypeType);
 			mComponentArrays = std::move(other.mComponentArrays);
 			mEntities = std::move(other.mEntities);
 		}
-
-		Archetype& operator=(const Archetype& other) = delete;
 
 		Archetype& operator=(Archetype&& other)
 		{
@@ -129,16 +130,34 @@ namespace itv
 	typedef std::function<void(size_t sourceIndex,void* source, void* destination)>  componentArrayFunc;
 	typedef std::function<std::unique_ptr<ComponentArrayBase>()> componentArrayInstantiationFunc;
 
+	class ECSSystemRegistrationAdmin
+	{
+	private:
+
+		ArchetypeManager* mArchetypeManager = nullptr;
+
+	public:
+
+		ECSSystemRegistrationAdmin(ArchetypeManager* archetypeManager) 
+			: mArchetypeManager(archetypeManager)
+		{
+		
+		}
+		~ECSSystemRegistrationAdmin() = default;
+
+		template<typename System>	void RegisterSystem();
+
+	};
+
 	class ArchetypeManager
 	{
 		friend class Entity;
-
 	private:
 
 		struct componentActionFuncs
 		{
-			componentArrayInstantiationFunc mTypeToComponentInstantiationFunc;
-			componentArrayFunc			    mTypeToComponentArrayMove;
+			componentArrayInstantiationFunc		 mTypeToComponentInstantiationFunc;
+			componentArrayFunc					 mTypeToComponentArrayMove;
 		};
 
 		std::unordered_map<TypeID, 
@@ -146,6 +165,9 @@ namespace itv
 
 		std::unordered_map<TypeID, size_t>		 mEntityRecords;
 		std::vector<Archetype>					 mArchetypes;
+
+		std::vector
+			< std::unique_ptr<ECSSystemBase> >	 mSystems;
 
 		ITV_API Archetype&						InstantiateArchetype(const ArchetypeType& types);
 
@@ -161,6 +183,8 @@ namespace itv
 				void							collectComponentHashes(std::vector<size_t>& generatedHashes);
 
 	public:
+
+		
 
 		ITV_API ArchetypeManager();
 
@@ -186,13 +210,21 @@ namespace itv
 
 		componentArrayInstantiationFunc&		GetComponentArrayInstantiationFunc(TypeID componentType);
 
+		ITV_API void							RegisterCoreSystems();
+
 		template<class Component> void			RegisterComponent();
 
-		template<class Component> bool			IsComponentRegistered() 
-		{ 
-			constexpr TypeID componentHash = GenerateTypeHash<Component>();
-			return mComponentHashToComponentActions.find(componentHash) != mComponentHashToComponentActions.end();
+		template<class Component> bool			IsComponentRegistered();
+
+		template <typename System,
+			typename = std::enable_if
+			< std::is_base_of
+			<ECSSystemBase, System>::value >>
+			void							    RegisterSystem()
+		{
+			mSystems.emplace_back( std::make_unique< System >() );
 		}
+		
 	};
 
 	//----------------------------------------------------------------------------------------------//
@@ -338,6 +370,13 @@ namespace itv
 		mComponentHashToComponentActions.insert( std::make_pair(componentHash, componentActions ) );
 	}
 
+	template<class Component>
+	inline bool ArchetypeManager::IsComponentRegistered()
+	{
+		constexpr TypeID componentHash = GenerateTypeHash<Component>();
+		return mComponentHashToComponentActions.find(componentHash) != mComponentHashToComponentActions.end();
+	}
+
 	template<typename ComponentType, typename ...ComponentTypes>
 	inline ArchetypeQuery ArchetypeManager::FindArchetypesWith()
 	{
@@ -357,6 +396,16 @@ namespace itv
 		generatedHashes.push_back(GenerateTypeHash<ComponentType>());
 
 		collectComponentHashes< ComponentTypes... >(generatedHashes);
+	}
+
+	//----------------------------------------------------------------------------------------------//
+	//									ECSSystemRegistrationAdmin
+	//----------------------------------------------------------------------------------------------//
+
+	template<typename System>
+	inline void ECSSystemRegistrationAdmin::RegisterSystem()
+	{
+		mArchetypeManager->RegisterSystem<System>();
 	}
 
 }

@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Containers\sparse_set.h"
 #include "ECS\ArchetypeManager.h"
+
 #include "Log.h"
 #include "math.h"
 
@@ -24,60 +25,11 @@ namespace itv
 
 	void Application::Run()
 	{
-		math::vec3 test(1, 1, 1);
-		math::cross(test, math::vec3(4, 4, 5));
-
 		ArchetypeManager archetypeManager;
+		archetypeManager.RegisterCoreSystems();
 
-		struct position
-		{
-			float x, y, z;
-		};
-
-		struct rotation
-		{
-			float x, y, z, w;
-		};
-
-		struct scale
-		{
-			float x, y, z;
-		};
-
-		archetypeManager.RegisterComponent<position>();
-		archetypeManager.RegisterComponent<rotation>();
-		archetypeManager.RegisterComponent<scale>();
-
-		position pos;
-		rotation rot;
-		scale scale;
-
-		auto posEnt = archetypeManager.CreateEntity();
-		posEnt.AddComponent(pos);
-
-		auto posEnt2 = archetypeManager.CreateEntity();
-		posEnt2.AddComponent(pos);
-
-		auto posRotEnt = archetypeManager.CreateEntity();
-		posRotEnt.AddComponent(pos);
-		posRotEnt.AddComponent(rot);
-
-		auto posRotScaleEnt = archetypeManager.CreateEntity();
-		posRotScaleEnt.AddComponent(pos);
-		posRotScaleEnt.AddComponent(rot);
-		posRotScaleEnt.AddComponent(scale);
-
-		itv::ArchetypeQuery positionQuery = archetypeManager.FindArchetypesWith<position>();
-
-		for (size_t i = 0; i < positionQuery.Size(); i++)
-		{
-			auto& archetype = positionQuery[i];
-
-			auto componentArray = archetype.GetComponentArray<position>();
-
-
-
-		}
+		ECSSystemRegistrationAdmin admin(&archetypeManager);
+		RegisterGameSystems(admin);
 
 		while (mApplicationRunning)
 		{

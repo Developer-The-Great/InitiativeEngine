@@ -55,18 +55,11 @@ namespace itv
 		//mArchetypes should never get resized because it will invalidate references to archetypes
 		mArchetypes.reserve(ARCHETYPE_RESERVE);
 
-//#if _DEBUG
-//		static int sArcetypeManagerCount = 0;
-//		sArcetypeManagerCount++;
-//		assert(sArcetypeManagerCount == 1); // there can only be one archetype manager
-//#endif
-
 		Entity::sArchetypeManager = this;
 		Archetype::sArchetypeManager = this;
 
 		InstantiateArchetype(ArchetypeType());
-
-
+		
 	}
 
 	Archetype& ArchetypeManager::InstantiateArchetype(const ArchetypeType& types)
