@@ -44,8 +44,5 @@ namespace itv
 		inline size_t GetID() const { return mID; }
 
 	}; 
-
-
-
-
 }
+
