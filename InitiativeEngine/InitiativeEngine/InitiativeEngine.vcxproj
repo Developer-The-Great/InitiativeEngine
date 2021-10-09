@@ -126,6 +126,7 @@
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Initiative\ECS\ArchetypeManager.inl" />
     <None Include="src\Initiative\ECS\ECSSystemBase.inl" />
     <None Include="src\Initiative\ECS\Entity.inl" />
   </ItemGroup>

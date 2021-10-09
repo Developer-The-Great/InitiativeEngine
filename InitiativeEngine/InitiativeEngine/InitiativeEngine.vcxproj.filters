@@ -106,5 +106,8 @@
     <None Include="src\Initiative\ECS\Entity.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\Initiative\ECS\ArchetypeManager.inl">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
