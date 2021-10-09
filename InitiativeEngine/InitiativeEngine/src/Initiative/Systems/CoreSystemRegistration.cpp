@@ -1,8 +1,8 @@
-#include "Initiative\ECS\ArchetypeManager.h"
+#include "Initiative\ECS\ECSSystemManager.h"
 
 namespace itv
 {
-	void ArchetypeManager::RegisterCoreSystems()
+	void ECSSystemManager::RegisterCoreSystems()
 	{
 
 

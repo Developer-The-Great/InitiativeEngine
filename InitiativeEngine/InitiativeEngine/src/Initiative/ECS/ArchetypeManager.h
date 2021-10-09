@@ -2,7 +2,8 @@
 #include "Initiative\Core.h"
 #include "Initiative\ECS\ComponentArray.h"
 #include "Initiative\ECS\ECSUtils.h"
-#include "Initiative\ECS\ECSSystemBase.h"
+
+#include "Initiative\ECS\Entity.h"
 
 #include "Initiative\TypeHashing.h"
 #include "Initiative\Containers\sparse_set.h"
@@ -14,47 +15,7 @@ namespace itv
 
 	class Archetype;
 	class ArchetypeManager;
-
-	class Entity
-	{
-		friend class ArchetypeManager;
-		friend class Archetype;
-
-	private:
-
-		TypeID mID;
-
-		ITV_API static ArchetypeManager* sArchetypeManager;
-
-		Entity(TypeID ID) : mID(ID) {};
-
-	public:
-
-		~Entity() = default;
-		Entity(Entity&& other) = default;
-		Entity(Entity& other) = default;
-
-		inline Entity& operator=(const Entity& other) 
-		{
-			mID = other.mID;
-			return *this;
-		}
-
-		template<class Component>
-		void AddComponent(Component& component);
-
-		template<class Component>
-		bool HasComponent() const;
-		
-		template<class Component>
-		void RemoveComponent(Component& component);
-
-		operator size_t() const { return mID; }
-
-		inline size_t GetID() const { return mID; }
-
-	};
-
+	class ECSSystemBase;
 
 	class Archetype
 	{
@@ -130,24 +91,7 @@ namespace itv
 	typedef std::function<void(size_t sourceIndex,void* source, void* destination)>  componentArrayFunc;
 	typedef std::function<std::unique_ptr<ComponentArrayBase>()> componentArrayInstantiationFunc;
 
-	class ECSSystemRegistrationAdmin
-	{
-	private:
-
-		ArchetypeManager* mArchetypeManager = nullptr;
-
-	public:
-
-		ECSSystemRegistrationAdmin(ArchetypeManager* archetypeManager) 
-			: mArchetypeManager(archetypeManager)
-		{
-		
-		}
-		~ECSSystemRegistrationAdmin() = default;
-
-		template<typename System>	void RegisterSystem();
-
-	};
+	
 
 	class ArchetypeManager
 	{
@@ -166,8 +110,7 @@ namespace itv
 		std::unordered_map<TypeID, size_t>		 mEntityRecords;
 		std::vector<Archetype>					 mArchetypes;
 
-		std::vector
-			< std::unique_ptr<ECSSystemBase> >	 mSystems;
+		
 
 		ITV_API Archetype&						InstantiateArchetype(const ArchetypeType& types);
 
@@ -210,26 +153,11 @@ namespace itv
 
 		componentArrayInstantiationFunc&		GetComponentArrayInstantiationFunc(TypeID componentType);
 
-		ITV_API void							RegisterCoreSystems();
-
 		template<class Component> void			RegisterComponent();
 
 		template<class Component> bool			IsComponentRegistered();
 
-		template <typename System,
-			typename = std::enable_if
-			< std::is_base_of
-			<ECSSystemBase, System>::value >>
-			void							    RegisterSystem()
-		{
-			mSystems.emplace_back( std::make_unique< System >() );
-		}
-		
 	};
-
-	//----------------------------------------------------------------------------------------------//
-	//									Entity
-	//----------------------------------------------------------------------------------------------//
 
 	template<class Component>
 	void Entity::AddComponent(Component& component)
@@ -238,9 +166,8 @@ namespace itv
 
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
-#ifdef _DEBUG
 		assert(sArchetypeManager->IsComponentRegistered<Component>());
-#endif 
+
 		//[1] Build ArchetypeType of Archetype we are looking for 
 
 		Archetype& oldArchetype = sArchetypeManager->GetRecord(mID);
@@ -250,9 +177,9 @@ namespace itv
 
 		size_t newArchetypeIndex;
 		auto newArchetypeOptionalRef = sArchetypeManager->GetArchetype(newType, newArchetypeIndex);
-		
+
 		//[2] Construct a new one destination archetype if it doesnt exist yet
-		if ( !newArchetypeOptionalRef.has_value() )
+		if (!newArchetypeOptionalRef.has_value())
 		{
 			newArchetypeOptionalRef = sArchetypeManager->InstantiateArchetype(newType);
 			newArchetypeIndex = sArchetypeManager->GetArchetypeCount() - 1;
@@ -260,9 +187,7 @@ namespace itv
 
 		Archetype& newArchetype = newArchetypeOptionalRef.value().get();
 
-#ifdef _DEBUG
 		assert(&newArchetype != &oldArchetype);
-#endif 
 
 		//[3] Get each component of current archetype and move them to the new archetype
 
@@ -270,30 +195,28 @@ namespace itv
 
 		size_t oldArchetypeIndex = oldArchetype.GetEntityIndex(mID);
 
-#ifdef _DEBUG
 		assert(oldArchetypeIndex != invalid_entity_id);
-#endif 
 
 		for (size_t i = 0; i < oldArchetype.GetComponentArrayCount(); i++)
 		{
 
 			auto& moveFunc = sArchetypeManager->GetComponentArrayMoveFunc(types.At(i));
 
-			void* currentLoc	 = oldArchetype.mComponentArrays[i]->GetCompArrayPtr();
+			void* currentLoc = oldArchetype.mComponentArrays[i]->GetCompArrayPtr();
 			void* destinationLoc = newArchetype.FindComponentArrayOfType(types.At(i));
 
-			moveFunc( oldArchetypeIndex,currentLoc,destinationLoc );
+			moveFunc(oldArchetypeIndex, currentLoc, destinationLoc);
 
 		}
 
-		oldArchetype.moveExistingEntity( mID, newArchetype );
+		oldArchetype.moveExistingEntity(mID, newArchetype);
 
 		void* destinationLoc = newArchetype.FindComponentArrayOfType(componentHash);
 
 		//[4] add new component to new Archetype
 
-		std::vector<Component> * newComponentDestination = 
-			static_cast<std::vector<Component> *>(destinationLoc);
+		std::vector<Component>* newComponentDestination =
+			static_cast<std::vector<Component>*>(destinationLoc);
 
 		newComponentDestination->push_back(component);
 
@@ -310,7 +233,7 @@ namespace itv
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
 		Archetype& archetype = sArchetypeManager->GetRecord(mID);
-		
+
 		return archetype.FindComponentArrayOfType(componentHash) != nullptr;
 	}
 
@@ -320,6 +243,7 @@ namespace itv
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
 	}
+	
 
 	//----------------------------------------------------------------------------------------------//
 	//									Archetype
@@ -396,16 +320,6 @@ namespace itv
 		generatedHashes.push_back(GenerateTypeHash<ComponentType>());
 
 		collectComponentHashes< ComponentTypes... >(generatedHashes);
-	}
-
-	//----------------------------------------------------------------------------------------------//
-	//									ECSSystemRegistrationAdmin
-	//----------------------------------------------------------------------------------------------//
-
-	template<typename System>
-	inline void ECSSystemRegistrationAdmin::RegisterSystem()
-	{
-		mArchetypeManager->RegisterSystem<System>();
 	}
 
 }

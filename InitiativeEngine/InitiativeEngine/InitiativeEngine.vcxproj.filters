@@ -66,6 +66,12 @@
     <ClInclude Include="src\Initiative\math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Initiative\ECS\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\ECS\ECSSystemManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp">
@@ -86,9 +92,18 @@
     <ClCompile Include="src\Initiative\Systems\CoreSystemRegistration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Initiative\ECS\ECSSystemBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Initiative\ECS\ECSSystemManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Initiative\ECS\ECSSystemBase.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="src\Initiative\ECS\Entity.inl">
       <Filter>Header Files</Filter>
     </None>
   </ItemGroup>

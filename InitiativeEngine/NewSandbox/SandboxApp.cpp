@@ -1,20 +1,25 @@
 #include "InitiativeEngine.h"
+#include "GameSystems\ExampleSystem.h"
 
-
-class Sandbox : public itv::Application
+namespace itv
 {
-public:
-	Sandbox() = default;
-	~Sandbox() = default;
-
-	void RegisterGameSystems(itv::ECSSystemRegistrationAdmin& systemRegAdmin) override
+	class Sandbox : public itv::Application
 	{
-		ITV_LOG("-------------- Initializing Game Systems --------------");
-		
-	
-	};
+	public:
+		Sandbox() = default;
+		~Sandbox() = default;
 
-};
+		void RegisterGameSystems(itv::ECSSystemRegistrationAdmin& systemRegAdmin) override
+		{
+			ITV_LOG("-------------- Initializing Game Systems --------------");
+
+			systemRegAdmin.RegisterSystem<ExampleSystem>();
+
+		};
+
+	};
+}
+
 
 itv::Application* itv::CreateApplication()
 {

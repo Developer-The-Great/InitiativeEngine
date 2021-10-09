@@ -1,6 +1,4 @@
 #pragma once
-#include "ECSSystemBase.h"
-#include "ArchetypeManager.h"
 
 namespace itv
 {

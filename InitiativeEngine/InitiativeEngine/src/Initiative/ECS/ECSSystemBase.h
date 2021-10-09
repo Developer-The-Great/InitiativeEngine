@@ -1,5 +1,7 @@
 #pragma once
 #include "ECSUtils.h"
+#include "Entity.h"
+#include "ArchetypeManager.h"
 
 namespace itv
 {
@@ -7,17 +9,34 @@ namespace itv
 
 	class ECSSystemBase
 	{
+		friend class ECSSystemManager;
+
 	private:
 
 		ArchetypeManager* mArchetypeManager = nullptr;
 
-		ECSSystemBase(ArchetypeManager* archetypeManager) : mArchetypeManager(archetypeManager)
-		{
-
+		inline void SetArchetypeManager(ArchetypeManager* archetypeManager) 
+		{ 
+			mArchetypeManager = archetypeManager;
 		}
+
+	protected:
+
+		template<typename ComponentType,
+			typename... ComponentTypes>
+				ArchetypeQuery					FindArchetypesWith();
+
+		template<class Component>  inline void	RegisterComponent();
+
+		ITV_API Entity CreateEntity();
 
 
 	public:
+
+		ECSSystemBase()
+		{
+
+		}
 
 		virtual void						    RegisterComponents() = 0;
 
@@ -25,14 +44,11 @@ namespace itv
 
 		virtual void						    Run() = 0;
 
-		template<typename ComponentType,
-			typename... ComponentTypes>
-		ArchetypeQuery							FindArchetypesWith();
-
-		template<class Component> inline void	RegisterComponent();
-
 	};
 
+
 }
+
+#include "ECSSystemBase.inl"
 
 
