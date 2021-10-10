@@ -62,6 +62,7 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 		REQUIRE( comp2Hash != comp3Hash );
 
 
+		//------------------------------------- FIRST ADD COMPONENT ------------------------------------------------------------------//
 		WHEN("A the first component is added")
 		{
 			TestComponent1 testComponent;
@@ -97,6 +98,8 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 				REQUIRE( !firstEnt.HasComponent< TestComponent2 >() );
 			}
 
+			//------------------------------------- SECOND ADD COMPONENT ---------------------------------//
+
 			WHEN("A second component that has not been added is added")
 			{
 				TestComponent2 testComponent2;
@@ -118,6 +121,40 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 					REQUIRE(firstEnt.HasComponent< TestComponent1 >());
 					REQUIRE(firstEnt.HasComponent< TestComponent2 >());
 				}
+
+				//------------------------------------- THIRD ADD COMPONENT ---------------------------------//
+
+				WHEN("A Third component that has not been added is added")
+				{
+					TestComponent3 testComponent3;
+					firstEnt.AddComponent(testComponent3);
+
+					auto comp123Arch = archetypeManager.GetArchetype
+					(ArchetypeType(std::vector<size_t>{comp1Hash, comp2Hash, comp3Hash}));
+
+					THEN("The entity is not in the old archetype")
+					{
+						Archetype& archetypeInRecord = archetypeManager.GetRecord(firstEnt.GetID());
+
+						REQUIRE(&comp1Arch.value().get() != &archetypeInRecord);
+						REQUIRE(&comp12Arch.value().get() != &archetypeInRecord);
+						REQUIRE(&comp123Arch.value().get() == &archetypeInRecord);
+					}
+
+					THEN("Calling has component on the added components yields TRUE")
+					{
+						REQUIRE(firstEnt.HasComponent< TestComponent1 >());
+						REQUIRE(firstEnt.HasComponent< TestComponent2 >());
+						REQUIRE(firstEnt.HasComponent< TestComponent3 >());
+					}
+				}
+
+
+
+
+
+
+
 			}
 		}
 	}

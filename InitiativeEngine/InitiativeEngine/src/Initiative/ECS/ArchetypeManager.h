@@ -91,8 +91,6 @@ namespace itv
 	typedef std::function<void(size_t sourceIndex,void* source, void* destination)>  componentArrayFunc;
 	typedef std::function<std::unique_ptr<ComponentArrayBase>()> componentArrayInstantiationFunc;
 
-	
-
 	class ArchetypeManager
 	{
 		friend class Entity;
@@ -159,11 +157,6 @@ namespace itv
 
 	};
 
-	//----------------------------------------------------------------------------------------------//
-	//									Archetype
-	//----------------------------------------------------------------------------------------------//
-
-
 	template<class Component>
 	inline ComponentArrayHandle<Component> Archetype::GetComponentArray()
 	{
@@ -178,12 +171,6 @@ namespace itv
 
 		return ComponentArrayHandle<Component>( newComponentDestination->data(),mEntities.size() );
 	}
-
-	//----------------------------------------------------------------------------------------------//
-	//									ArchetypeManager
-	//----------------------------------------------------------------------------------------------//
-
-	
 
 }
 
