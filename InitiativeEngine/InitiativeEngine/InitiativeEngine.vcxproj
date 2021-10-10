@@ -101,11 +101,15 @@
     <ClInclude Include="src\Initiative\Core.h" />
     <ClInclude Include="src\Initiative\ECS\ArchetypeManager.h" />
     <ClInclude Include="src\Initiative\ECS\ComponentArray.h" />
+    <ClInclude Include="src\Initiative\ECS\ECSSystemBase.h" />
+    <ClInclude Include="src\Initiative\ECS\ECSSystemManager.h" />
     <ClInclude Include="src\Initiative\ECS\ECSUtils.h" />
+    <ClInclude Include="src\Initiative\ECS\Entity.h" />
     <ClInclude Include="src\Initiative\EntryPoint.h" />
     <ClInclude Include="src\Initiative\Events\Event.h" />
     <ClInclude Include="src\Initiative\Events\WindowEvents.h" />
     <ClInclude Include="src\Initiative\Log.h" />
+    <ClInclude Include="src\Initiative\math.h" />
     <ClInclude Include="src\Initiative\TypeHashing.h" />
     <ClInclude Include="src\Initiative\UnitTesting\UnitTest.h" />
     <ClInclude Include="src\Initiative\Window\Window.h" />
@@ -114,9 +118,17 @@
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp" />
     <ClCompile Include="src\Initiative\ECS\ArchetypeManager.cpp" />
+    <ClCompile Include="src\Initiative\ECS\ECSSystemBase.cpp" />
+    <ClCompile Include="src\Initiative\ECS\ECSSystemManager.cpp" />
     <ClCompile Include="src\Initiative\ECS\ECSUtils.cpp" />
     <ClCompile Include="src\Initiative\Log.cpp" />
+    <ClCompile Include="src\Initiative\Systems\CoreSystemRegistration.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Initiative\ECS\ArchetypeManager.inl" />
+    <None Include="src\Initiative\ECS\ECSSystemBase.inl" />
+    <None Include="src\Initiative\ECS\Entity.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

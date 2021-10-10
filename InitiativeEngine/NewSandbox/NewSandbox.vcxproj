@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameSystems\ExampleSystem.cpp" />
     <ClCompile Include="SandboxApp.cpp" />
     <ClCompile Include="UnitTesting\ECSTest.cpp" />
     <ClCompile Include="UnitTesting\SparseSetTest.cpp" />
@@ -101,6 +102,10 @@
     <ProjectReference Include="..\InitiativeEngine\InitiativeEngine.vcxproj">
       <Project>{2ccb34fc-550e-4ad9-8d9b-0a76fae87ca7}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameSystems\ExampleComponents\SimpleFPSComponents.h" />
+    <ClInclude Include="GameSystems\ExampleSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

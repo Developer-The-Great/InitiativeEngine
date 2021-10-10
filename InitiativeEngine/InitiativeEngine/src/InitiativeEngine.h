@@ -5,6 +5,9 @@
 #include "Initiative\Events\Event.h"
 #include "Initiative\Events\WindowEvents.h"
 #include "Initiative\Application.h"
+#include "Initiative\ECS\ArchetypeManager.h"
+#include "Initiative\ECS\ECSSystemManager.h"
+
 
 #include "Initiative\UnitTesting\UnitTest.h"
 

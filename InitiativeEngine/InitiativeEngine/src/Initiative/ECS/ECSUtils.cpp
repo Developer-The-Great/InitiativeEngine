@@ -13,6 +13,7 @@ namespace itv
 	{
 		return *mArchetypePtr;
 	}
+
 	ITV_API bool ArchetypeQueryIterator::operator==(const ArchetypeQueryIterator& other)
 	{
 		return mArchetypePtr == other.mArchetypePtr;

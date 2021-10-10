@@ -3,6 +3,8 @@
 #include "Initiative\ECS\ComponentArray.h"
 #include "Initiative\ECS\ECSUtils.h"
 
+#include "Initiative\ECS\Entity.h"
+
 #include "Initiative\TypeHashing.h"
 #include "Initiative\Containers\sparse_set.h"
 #include "Initiative\Log.h"
@@ -13,47 +15,7 @@ namespace itv
 
 	class Archetype;
 	class ArchetypeManager;
-
-	class Entity
-	{
-		friend class ArchetypeManager;
-		friend class Archetype;
-
-	private:
-
-		TypeID mID;
-
-		ITV_API static ArchetypeManager* sArchetypeManager;
-
-		Entity(TypeID ID) : mID(ID) {};
-
-	public:
-
-		~Entity() = default;
-		Entity(Entity&& other) = default;
-		Entity(Entity& other) = default;
-
-		inline Entity& operator=(const Entity& other) 
-		{
-			mID = other.mID;
-			return *this;
-		}
-
-		template<class Component>
-		void AddComponent(Component& component);
-
-		template<class Component>
-		bool HasComponent() const;
-		
-		template<class Component>
-		void RemoveComponent(Component& component);
-
-		operator size_t() const { return mID; }
-
-		inline size_t GetID() const { return mID; }
-
-	};
-
+	class ECSSystemBase;
 
 	class Archetype
 	{
@@ -81,14 +43,14 @@ namespace itv
 
 		Archetype(const Archetype& other) = delete;
 
+		Archetype& operator=(const Archetype& other) = delete;
+
 		Archetype(Archetype&& other)
 		{
 			mArchetypeType = std::move(other.mArchetypeType);
 			mComponentArrays = std::move(other.mComponentArrays);
 			mEntities = std::move(other.mEntities);
 		}
-
-		Archetype& operator=(const Archetype& other) = delete;
 
 		Archetype& operator=(Archetype&& other)
 		{
@@ -132,13 +94,12 @@ namespace itv
 	class ArchetypeManager
 	{
 		friend class Entity;
-
 	private:
 
 		struct componentActionFuncs
 		{
-			componentArrayInstantiationFunc mTypeToComponentInstantiationFunc;
-			componentArrayFunc			    mTypeToComponentArrayMove;
+			componentArrayInstantiationFunc		 mTypeToComponentInstantiationFunc;
+			componentArrayFunc					 mTypeToComponentArrayMove;
 		};
 
 		std::unordered_map<TypeID, 
@@ -146,6 +107,8 @@ namespace itv
 
 		std::unordered_map<TypeID, size_t>		 mEntityRecords;
 		std::vector<Archetype>					 mArchetypes;
+
+		
 
 		ITV_API Archetype&						InstantiateArchetype(const ArchetypeType& types);
 
@@ -161,6 +124,8 @@ namespace itv
 				void							collectComponentHashes(std::vector<size_t>& generatedHashes);
 
 	public:
+
+		
 
 		ITV_API ArchetypeManager();
 
@@ -188,111 +153,9 @@ namespace itv
 
 		template<class Component> void			RegisterComponent();
 
-		template<class Component> bool			IsComponentRegistered() 
-		{ 
-			constexpr TypeID componentHash = GenerateTypeHash<Component>();
-			return mComponentHashToComponentActions.find(componentHash) != mComponentHashToComponentActions.end();
-		}
+		template<class Component> bool			IsComponentRegistered();
+
 	};
-
-	//----------------------------------------------------------------------------------------------//
-	//									Entity
-	//----------------------------------------------------------------------------------------------//
-
-	template<class Component>
-	void Entity::AddComponent(Component& component)
-	{
-		ITV_LOG("Add Component: {0}", GET_FUNC_SIGNATURE);
-
-		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-
-#ifdef _DEBUG
-		assert(sArchetypeManager->IsComponentRegistered<Component>());
-#endif 
-		//[1] Build ArchetypeType of Archetype we are looking for 
-
-		Archetype& oldArchetype = sArchetypeManager->GetRecord(mID);
-
-		ArchetypeType newType = oldArchetype.GetArchetypeTypeCopy();
-		newType.AddType(componentHash);
-
-		size_t newArchetypeIndex;
-		auto newArchetypeOptionalRef = sArchetypeManager->GetArchetype(newType, newArchetypeIndex);
-		
-		//[2] Construct a new one destination archetype if it doesnt exist yet
-		if ( !newArchetypeOptionalRef.has_value() )
-		{
-			newArchetypeOptionalRef = sArchetypeManager->InstantiateArchetype(newType);
-			newArchetypeIndex = sArchetypeManager->GetArchetypeCount() - 1;
-		}
-
-		Archetype& newArchetype = newArchetypeOptionalRef.value().get();
-
-#ifdef _DEBUG
-		assert(&newArchetype != &oldArchetype);
-#endif 
-
-		//[3] Get each component of current archetype and move them to the new archetype
-
-		const ArchetypeType& types = oldArchetype.GetArchetypeType();
-
-		size_t oldArchetypeIndex = oldArchetype.GetEntityIndex(mID);
-
-#ifdef _DEBUG
-		assert(oldArchetypeIndex != invalid_entity_id);
-#endif 
-
-		for (size_t i = 0; i < oldArchetype.GetComponentArrayCount(); i++)
-		{
-
-			auto& moveFunc = sArchetypeManager->GetComponentArrayMoveFunc(types.At(i));
-
-			void* currentLoc	 = oldArchetype.mComponentArrays[i]->GetCompArrayPtr();
-			void* destinationLoc = newArchetype.FindComponentArrayOfType(types.At(i));
-
-			moveFunc( oldArchetypeIndex,currentLoc,destinationLoc );
-
-		}
-
-		oldArchetype.moveExistingEntity( mID, newArchetype );
-
-		void* destinationLoc = newArchetype.FindComponentArrayOfType(componentHash);
-
-		//[4] add new component to new Archetype
-
-		std::vector<Component> * newComponentDestination = 
-			static_cast<std::vector<Component> *>(destinationLoc);
-
-		newComponentDestination->push_back(component);
-
-		//[5] Update entity record
-
-		sArchetypeManager->UpdateEntityRecord(mID, newArchetypeIndex); //TODO this shoudlnt be last archetype
-
-		ITV_LOG("");
-	};
-
-	template<class Component>
-	bool Entity::HasComponent() const
-	{
-		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-
-		Archetype& archetype = sArchetypeManager->GetRecord(mID);
-		
-		return archetype.FindComponentArrayOfType(componentHash) != nullptr;
-	}
-
-	template<class Component>
-	void Entity::RemoveComponent(Component& component)
-	{
-		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-
-	}
-
-	//----------------------------------------------------------------------------------------------//
-	//									Archetype
-	//----------------------------------------------------------------------------------------------//
-
 
 	template<class Component>
 	inline ComponentArrayHandle<Component> Archetype::GetComponentArray()
@@ -309,54 +172,8 @@ namespace itv
 		return ComponentArrayHandle<Component>( newComponentDestination->data(),mEntities.size() );
 	}
 
-	//----------------------------------------------------------------------------------------------//
-	//									ArchetypeManager
-	//----------------------------------------------------------------------------------------------//
-
-	template<class Component>
-	void ArchetypeManager::RegisterComponent()
-	{
-		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-		ITV_LOG("generated component hash {0}", componentHash);
-
-		componentActionFuncs componentActions;
-
-		componentActions.mTypeToComponentInstantiationFunc = 
-			[]()
-		{
-			//std::make_unique cannnot used here because ComponentArray constructor is private
-			return std::move( std::unique_ptr<ComponentArray<Component>>
-				( new ComponentArray<Component>() ) );
-		};
-
-		componentActions.mTypeToComponentArrayMove =
-			[](size_t sourceIndex, void* source, void* destination)
-		{
-			ComponentArrayBase::MoveComponent<Component>(sourceIndex, source, destination);
-		};
-
-		mComponentHashToComponentActions.insert( std::make_pair(componentHash, componentActions ) );
-	}
-
-	template<typename ComponentType, typename ...ComponentTypes>
-	inline ArchetypeQuery ArchetypeManager::FindArchetypesWith()
-	{
-		std::vector<TypeID> componentHashes;
-		componentHashes.reserve(sizeof...(ComponentTypes) + 1);
-
-		collectComponentHashes<ComponentType, ComponentTypes...>(componentHashes);
-
-		ArchetypeType types( std::move( componentHashes ) );
-
-		return GetArchetypesWith( types );
-	}
-
-	template<typename ComponentType, typename ...ComponentTypes>
-	void ArchetypeManager::collectComponentHashes(std::vector<TypeID>& generatedHashes)
-	{
-		generatedHashes.push_back(GenerateTypeHash<ComponentType>());
-
-		collectComponentHashes< ComponentTypes... >(generatedHashes);
-	}
-
 }
+
+#include "ArchetypeManager.inl"
+#include "Entity.inl"
+

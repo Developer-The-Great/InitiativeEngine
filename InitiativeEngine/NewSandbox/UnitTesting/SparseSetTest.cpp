@@ -26,9 +26,6 @@ SCENARIO("values are correctly added to the sparse set", "[sparse_set]")
 			{
 				REQUIRE(sparseSet.size() == 1);
 			}
-
-
-
 		}
 
 		WHEN("A NON unique value is added")
