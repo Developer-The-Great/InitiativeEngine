@@ -30,6 +30,8 @@ namespace itv
 
 		ITV_API Entity CreateEntity();
 
+		ITV_API Entity GetWorldEntity();
+
 
 	public:
 

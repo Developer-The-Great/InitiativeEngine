@@ -33,7 +33,7 @@ namespace itv
 
 		virtual ObserverSubject& GetWindowSubject() = 0;
 
-		static std::unique_ptr<Window> Create(const WindowInfo& info);
+		static std::shared_ptr<Window> Create(const WindowInfo& info);
 	};
 
 

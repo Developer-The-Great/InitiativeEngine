@@ -11,7 +11,8 @@
 
 namespace itv
 {
-	constexpr size_t invalid_entity_id = std::numeric_limits<size_t>::max();
+	constexpr TypeID invalid_entity_id = std::numeric_limits<size_t>::max();
+	constexpr TypeID world_entity_id = 1;
 
 	class Archetype;
 	class ArchetypeManager;
@@ -96,6 +97,8 @@ namespace itv
 		friend class Entity;
 	private:
 
+		static TypeID nextEntityID;
+
 		struct componentActionFuncs
 		{
 			componentArrayInstantiationFunc		 mTypeToComponentInstantiationFunc;
@@ -108,7 +111,7 @@ namespace itv
 		std::unordered_map<TypeID, size_t>		 mEntityRecords;
 		std::vector<Archetype>					 mArchetypes;
 
-		
+
 
 		ITV_API Archetype&						InstantiateArchetype(const ArchetypeType& types);
 
@@ -127,7 +130,7 @@ namespace itv
 
 		
 
-		ITV_API ArchetypeManager();
+		ITV_API									ArchetypeManager();
 
 		inline size_t						    GetArchetypeCount() const { return mArchetypes.size(); }
 
@@ -146,6 +149,8 @@ namespace itv
 		ITV_API Archetype& 						GetRecord(TypeID id);
 
 		ITV_API Entity 							CreateEntity();
+
+		ITV_API Entity							GetWorldEntity() const;
 
 		ITV_API componentArrayFunc&				GetComponentArrayMoveFunc(TypeID componentType);
 

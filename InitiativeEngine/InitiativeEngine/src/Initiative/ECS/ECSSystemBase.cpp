@@ -8,5 +8,10 @@ namespace itv
 		return mArchetypeManager->CreateEntity();
 	}
 
+	Entity ECSSystemBase::GetWorldEntity()
+	{
+		return mArchetypeManager->GetWorldEntity();
+	}
+
 }
 

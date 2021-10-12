@@ -54,6 +54,8 @@ namespace itv
 			mSystems.emplace_back(std::move(systemPtr));
 		}
 
+		ITV_API void							RegisterSystemComponents();
+
 		ITV_API void							InitializeSystem();
 
 		ITV_API void							RunSystems();
