@@ -6,7 +6,6 @@ namespace itv
 	void ArchetypeManager::RegisterComponent()
 	{
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
-		ITV_LOG("generated component hash {0}", componentHash);
 
 		componentActionFuncs componentActions;
 

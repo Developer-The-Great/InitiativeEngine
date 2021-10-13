@@ -41,8 +41,6 @@ namespace itv
 		template<class Component>
 		static void MoveComponent( size_t sourceIndex, void* source, void* destination )
 		{
-			ITV_LOG("	MoveComponent: {0}", GET_FUNC_SIGNATURE);
-
 			std::vector<Component>& sourceVector	  = *static_cast<std::vector<Component>*>( source );
 			std::vector<Component>& destinationVector = *static_cast<std::vector<Component>*>( destination );
 

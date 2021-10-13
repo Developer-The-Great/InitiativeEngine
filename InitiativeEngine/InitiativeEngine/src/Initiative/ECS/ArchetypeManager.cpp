@@ -86,7 +86,6 @@ namespace itv
 		std::vector<Archetype*> archetypePtrs;
 		archetypePtrs.reserve( mArchetypes.size() );
 
-		//for each archetype 
 		for (Archetype& archetype : mArchetypes)
 		{
 			if ( archetype.GetArchetypeType().ContainsTypesInside( type ) )

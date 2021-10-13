@@ -11,9 +11,9 @@ namespace itv
 
 	public:
 
-		ArchetypeType(std::vector<TypeID>&& types) : mTypes(std::move(types)) {}
+		ArchetypeType(std::vector<TypeID>&& types) : mTypes(std::move(types)) { std::sort(mTypes.begin(), mTypes.end()); }
 
-		ArchetypeType(const std::vector<TypeID>& types) : mTypes(types) {}
+		ArchetypeType(const std::vector<TypeID>& types) : mTypes(types) { std::sort(mTypes.begin(), mTypes.end()); }
 
 		ArchetypeType() = default;
 
