@@ -36,4 +36,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\testShader.frag" />
+    <None Include="Shaders\testShader.vert" />
+  </ItemGroup>
 </Project>

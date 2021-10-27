@@ -23,7 +23,7 @@ namespace itv
 
 		ObserverSubject& GetWindowSubject() override { return mData.subject; };
 		
-
+		void*		 GetWindowPtr() const override;
 	private:
 
 		void init(const WindowInfo& windowInfo);

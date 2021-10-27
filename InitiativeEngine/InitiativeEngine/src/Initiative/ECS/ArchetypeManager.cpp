@@ -126,7 +126,6 @@ namespace itv
 
 	Archetype& ArchetypeManager::GetRecord(TypeID id)
 	{
-		ITV_LOG("getting record at {0} ", mEntityRecords.at(id));
 		return mArchetypes[mEntityRecords.at(id)];
 	}
 

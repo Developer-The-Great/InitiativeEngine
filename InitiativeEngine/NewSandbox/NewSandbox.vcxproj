@@ -107,6 +107,10 @@
     <ClInclude Include="GameSystems\ExampleComponents\SimpleFPSComponents.h" />
     <ClInclude Include="GameSystems\ExampleSystem.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\testShader.frag" />
+    <None Include="Shaders\testShader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

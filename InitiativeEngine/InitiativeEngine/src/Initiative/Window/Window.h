@@ -31,6 +31,8 @@ namespace itv
 		virtual int GetWidth() const = 0;
 		virtual int GetHeight() const = 0;
 
+		virtual void* GetWindowPtr() const = 0;
+
 		virtual ObserverSubject& GetWindowSubject() = 0;
 
 		static std::shared_ptr<Window> Create(const WindowInfo& info);

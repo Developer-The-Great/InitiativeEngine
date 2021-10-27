@@ -40,6 +40,8 @@ namespace itv
 
 		}
 
+		virtual ~ECSSystemBase() {}
+
 		virtual void						    RegisterComponents() = 0;
 
 		virtual void							BeginRun() = 0;

@@ -131,6 +131,7 @@ namespace itv
 		
 
 		ITV_API									ArchetypeManager();
+												~ArchetypeManager() = default;
 
 		inline size_t						    GetArchetypeCount() const { return mArchetypes.size(); }
 
