@@ -31,6 +31,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <chrono>
+
 typedef std::uint64_t TypeID;
 
 

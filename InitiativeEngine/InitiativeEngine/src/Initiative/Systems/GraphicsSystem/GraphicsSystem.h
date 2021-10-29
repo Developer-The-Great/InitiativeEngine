@@ -47,6 +47,7 @@ namespace itv
 		VkFormat mSwapChainImageFormat;
 		VkExtent2D mSwapChainExtent;
 
+		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout mPipelineLayout;
 		VkRenderPass mRenderPass;
 		
@@ -69,6 +70,19 @@ namespace itv
 		std::vector<VkFence> mInFlightFences;
 		std::vector<VkFence> mImagesInFlight;
 
+		VkBuffer mVertexBuffer;
+		VkDeviceMemory mVertexBufferMemory;
+
+		VkBuffer mIndexBuffer;
+		VkDeviceMemory mIndexBufferMemory;
+
+		VkDescriptorPool mDescriptorPool;
+
+		std::vector<VkBuffer> mUniformBuffers;
+		std::vector<VkDeviceMemory> mUniformBuffersMemory;
+
+		std::vector<VkDescriptorSet> descriptorSets;
+
 		size_t currentFrame = 0;
 
 		const std::vector<const char*> mValidationLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -86,12 +100,19 @@ namespace itv
 		void createLogicalDevice();
 		void createSwapChain();
 		void createImageViews();
-		void createRenderPass();
+		void createRenderPass(); 
+		void createDescriptorSetLayout();
 		void createGraphicsPipeline();
 		void createFrameBuffers();
 		void createCommandPool();
+		void createIndexBuffers();
+		void createVertexBuffers();
+		void createUniformBuffers();
+		void createDescriptorPool();
+		void createDescriptorSets();
 		void createCommandBuffers();
 		void createSyncObjects();
+
 
 		void recreateSwapChain();
 
@@ -131,8 +152,14 @@ namespace itv
 
 		void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-		
+		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
+		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, 
+			VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+		void updateUniformBuffer(uint32_t currentImage);
 	public:
 	
 
