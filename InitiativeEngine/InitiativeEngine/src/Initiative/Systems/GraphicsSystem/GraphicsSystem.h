@@ -76,12 +76,22 @@ namespace itv
 		VkBuffer mIndexBuffer;
 		VkDeviceMemory mIndexBufferMemory;
 
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
+
 		VkDescriptorPool mDescriptorPool;
 
 		std::vector<VkBuffer> mUniformBuffers;
 		std::vector<VkDeviceMemory> mUniformBuffersMemory;
 
 		std::vector<VkDescriptorSet> descriptorSets;
+
+		VkImageView mTextureImageView;
+		VkSampler mTextureSampler;
+
+		VkImage depthImage;
+		VkDeviceMemory depthImageMemory;
+		VkImageView depthImageView;
 
 		size_t currentFrame = 0;
 
@@ -90,8 +100,6 @@ namespace itv
 		const std::vector<const char*> mDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 		std::vector<const char*> getRequiredExtensions();
-
-		
 
 		void initVulkan();
 		void createInstance();
@@ -105,14 +113,17 @@ namespace itv
 		void createGraphicsPipeline();
 		void createFrameBuffers();
 		void createCommandPool();
+		void createDepthResources();
 		void createIndexBuffers();
 		void createVertexBuffers();
+		void createTextureImage();
+		void createTextureImageView();
+		void createTextureSampler();
 		void createUniformBuffers();
 		void createDescriptorPool();
 		void createDescriptorSets();
 		void createCommandBuffers();
 		void createSyncObjects();
-
 
 		void recreateSwapChain();
 
@@ -160,6 +171,28 @@ namespace itv
 		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 		void updateUniformBuffer(uint32_t currentImage);
+
+		void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
+			VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+
+		void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+		VkCommandBuffer beginSingleTimeCommands();
+		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+		void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+
+		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+			VkFormatFeatureFlags features);
+
+		VkFormat findDepthFormat();
+
+		bool hasStencilComponent(VkFormat format) {
+			return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+		}
+
 	public:
 	
 
