@@ -13,14 +13,13 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-
 namespace itv
 {
 	struct Vertex {
 		math::vec3 pos;
 		math::vec3 color;
 		math::vec2 texCoord;
-		
+
 
 		static VkVertexInputBindingDescription getBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};
@@ -51,7 +50,29 @@ namespace itv
 			return attributeDescriptions;
 		}
 
+		bool operator==(const Vertex& other) const {
+			return pos == other.pos && color == other.color && texCoord == other.texCoord;
+		}
+
 	};
+}
+
+
+
+namespace std {
+
+	template<> struct hash<itv::Vertex> {
+		size_t operator()(itv::Vertex const& vertex) const {
+			return ((hash<itv::math::vec3>()(vertex.pos) ^
+				(hash<itv::math::vec3>()(vertex.color) << 1)) >> 1) ^
+				(hash<itv::math::vec2>()(vertex.texCoord) << 1);
+		}
+	};
+}
+
+namespace itv
+{
+	
 
 	struct UniformBufferObject {
 		math::mat4 model;
@@ -795,6 +816,7 @@ namespace itv
 		{
 			throw std::runtime_error(warn + err);
 		}
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
@@ -811,8 +833,12 @@ namespace itv
 				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
 				};
 
-				vertices.push_back(vertex);
-				indices.push_back(indices.size());
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back(vertex);
+				}
+
+				indices.push_back(uniqueVertices[vertex]);
 			}
 		}
 
