@@ -115,6 +115,7 @@ namespace itv
 		void createCommandPool();
 		void createDepthResources();
 		void createIndexBuffers();
+		void loadModel();
 		void createVertexBuffers();
 		void createTextureImage();
 		void createTextureImageView();

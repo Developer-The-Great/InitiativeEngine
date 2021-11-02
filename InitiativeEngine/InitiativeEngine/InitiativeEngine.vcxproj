@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;$(SolutionDir)InitiativeEngine\ThirdParty\TinyObjLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;$(SolutionDir)InitiativeEngine\ThirdParty\TinyObjLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

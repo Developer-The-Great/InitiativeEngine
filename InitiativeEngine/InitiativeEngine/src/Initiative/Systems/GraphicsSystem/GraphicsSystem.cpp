@@ -1,7 +1,7 @@
 #include "GraphicsSystem.h"
 #include "Initiative\Systems\GraphicsSystem\Components\WindowHandle.h"
 
-#include "glfw3.h"
+#include <glfw3.h>
 
 #include "Initiative\FileUtils.h"
 
@@ -9,6 +9,9 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 
 namespace itv
@@ -56,22 +59,8 @@ namespace itv
 		math::mat4 proj;
 	};
 
-	const std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> indices = {
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
-	};
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
 
 	constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -89,6 +78,10 @@ namespace itv
 
 	void GraphicsSystem::cleanup()
 	{
+		vkDestroyImageView(mLogicalDevice, depthImageView, nullptr);
+		vkDestroyImage(mLogicalDevice, depthImage, nullptr);
+		vkFreeMemory(mLogicalDevice, depthImageMemory, nullptr);
+
 		cleanupSwapChain();
 
 		vkDestroySampler(mLogicalDevice, mTextureSampler, nullptr);
@@ -212,6 +205,7 @@ namespace itv
 		createCommandPool();
 		createDepthResources();
 		createFrameBuffers();
+		loadModel();
 		createVertexBuffers();
 		createIndexBuffers();
 		createTextureImage();
@@ -486,7 +480,6 @@ namespace itv
 		VkAttachmentReference depthAttachmentRef{};
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
 
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = mSwapChainImageFormat;
@@ -791,6 +784,40 @@ namespace itv
 		vkFreeMemory(mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
+	void GraphicsSystem::loadModel()
+	{
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
+
+		if (  !tinyobj::LoadObj( &attrib, &shapes, &materials, &warn, &err,"Models/viking_room.obj" ) ) 
+		{
+			throw std::runtime_error(warn + err);
+		}
+
+		for (const auto& shape : shapes) {
+			for (const auto& index : shape.mesh.indices) {
+				Vertex vertex{};
+
+				vertex.pos = {
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.texCoord = {
+				attrib.texcoords[2 * index.texcoord_index + 0],
+				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertices.push_back(vertex);
+				indices.push_back(indices.size());
+			}
+		}
+
+	}
+
 	void GraphicsSystem::createVertexBuffers()
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -817,7 +844,7 @@ namespace itv
 	void GraphicsSystem::createTextureImage()
 	{
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load("textures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels) {
@@ -1026,7 +1053,7 @@ namespace itv
 			VkDeviceSize offsets[] = { 0 };
 			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-			vkCmdBindIndexBuffer(commandBuffers[i], mIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(commandBuffers[i], mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
 				mPipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
@@ -1088,6 +1115,7 @@ namespace itv
 		createImageViews();
 		createRenderPass();
 		createGraphicsPipeline();
+		createDepthResources();
 		createFrameBuffers();
 		createUniformBuffers();
 		createDescriptorPool();
@@ -1367,7 +1395,7 @@ namespace itv
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 		UniformBufferObject ubo{};
-		ubo.model = math::rotate(math::mat4(1.0f), time * math::radians(90.0f), math::vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = math::rotate(math::mat4(1.0f),math::radians(45.0f), math::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = math::lookAt(math::vec3(2.0f, 2.0f, 2.0f), math::vec3(0.0f, 0.0f, 0.0f), math::vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj = math::perspective(math::radians(45.0f), mSwapChainExtent.width / (float) mSwapChainExtent.height, 0.1f, 10.0f);
 
