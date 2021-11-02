@@ -11,7 +11,7 @@ namespace itv
 	{
 	private:
 
-		std::unique_ptr<Window> mWindow;
+		std::shared_ptr<Window> mWindow;
 		bool mApplicationRunning = true;
 
 		Observer<WindowCloseEvent> closeEventObserver;

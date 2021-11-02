@@ -35,6 +35,11 @@ namespace itv
 		mData.VSync = enabled;
 	}
 
+	void* GLFWWindow::GetWindowPtr() const
+	{
+		return mWindow;
+	}
+
 	void GLFWWindow::init(const WindowInfo& windowInfo)
 	{
 		glfwInit();

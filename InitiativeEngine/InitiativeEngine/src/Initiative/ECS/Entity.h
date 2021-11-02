@@ -34,6 +34,9 @@ namespace itv
 		void AddComponent(Component& component);
 
 		template<class Component>
+		std::optional<std::reference_wrapper<Component>> GetComponent();
+
+		template<class Component>
 		bool HasComponent() const;
 
 		template<class Component>

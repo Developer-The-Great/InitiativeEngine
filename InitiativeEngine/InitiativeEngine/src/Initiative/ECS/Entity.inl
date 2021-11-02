@@ -5,8 +5,6 @@ namespace itv
 	template<class Component>
 	void Entity::AddComponent(Component& component)
 	{
-		ITV_LOG("Add Component: {0}", GET_FUNC_SIGNATURE);
-
 		constexpr TypeID componentHash = GenerateTypeHash<Component>();
 
 		assert(sArchetypeManager->IsComponentRegistered<Component>());
@@ -69,6 +67,25 @@ namespace itv
 
 		ITV_LOG("");
 	};
+
+	template<class Component>
+	std::optional<std::reference_wrapper<Component>> Entity::GetComponent()
+	{
+		constexpr TypeID componentHash = GenerateTypeHash<Component>();
+		Archetype& archetype = sArchetypeManager->GetRecord(mID);
+
+		void* compArray = archetype.FindComponentArrayOfType(componentHash);
+
+		if (compArray == nullptr)
+		{
+			return std::nullopt;
+		}
+
+		size_t indexInArray = archetype.GetEntityIndex(mID);
+		std::vector<Component>* arrayPtr = static_cast<std::vector<Component>*>(compArray);
+
+		return std::optional<std::reference_wrapper<Component>>{ arrayPtr->at( indexInArray ) };
+	}
 
 	template<class Component>
 	bool Entity::HasComponent() const

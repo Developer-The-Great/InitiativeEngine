@@ -30,6 +30,8 @@ namespace itv
 
 		ITV_API Entity CreateEntity();
 
+		ITV_API Entity GetWorldEntity();
+
 
 	public:
 
@@ -37,6 +39,8 @@ namespace itv
 		{
 
 		}
+
+		virtual ~ECSSystemBase() {}
 
 		virtual void						    RegisterComponents() = 0;
 

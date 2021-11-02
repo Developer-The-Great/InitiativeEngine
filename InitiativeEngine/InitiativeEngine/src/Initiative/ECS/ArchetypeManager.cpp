@@ -5,6 +5,8 @@
 
 namespace itv
 {
+	TypeID ArchetypeManager::nextEntityID = 0;
+
 	//----------------------------------------------------------------------------------------------//
 	//									Archetype
 	//----------------------------------------------------------------------------------------------//
@@ -59,7 +61,11 @@ namespace itv
 		Archetype::sArchetypeManager = this;
 
 		InstantiateArchetype(ArchetypeType());
-		
+
+		nextEntityID = 0;
+
+		Entity worldEntity = CreateEntity();
+		assert(worldEntity.mID == world_entity_id);
 	}
 
 	Archetype& ArchetypeManager::InstantiateArchetype(const ArchetypeType& types)
@@ -80,7 +86,6 @@ namespace itv
 		std::vector<Archetype*> archetypePtrs;
 		archetypePtrs.reserve( mArchetypes.size() );
 
-		//for each archetype 
 		for (Archetype& archetype : mArchetypes)
 		{
 			if ( archetype.GetArchetypeType().ContainsTypesInside( type ) )
@@ -121,13 +126,11 @@ namespace itv
 
 	Archetype& ArchetypeManager::GetRecord(TypeID id)
 	{
-		ITV_LOG("getting record at {0} ", mEntityRecords.at(id));
 		return mArchetypes[mEntityRecords.at(id)];
 	}
 
 	Entity ArchetypeManager::CreateEntity()
 	{
-		static size_t nextEntityID = 0;
 		nextEntityID++;
 		
 		mArchetypes[DEFAULT_ARCHETYPE].mEntities.push_back_unique(Entity(nextEntityID));
@@ -135,6 +138,11 @@ namespace itv
 		mEntityRecords.insert( std::make_pair(nextEntityID, DEFAULT_ARCHETYPE) );
 
 		return Entity(nextEntityID);
+	}
+
+	Entity ArchetypeManager::GetWorldEntity() const
+	{
+		return Entity(world_entity_id);
 	}
 
 	componentArrayFunc& ArchetypeManager::GetComponentArrayMoveFunc(TypeID componentType)

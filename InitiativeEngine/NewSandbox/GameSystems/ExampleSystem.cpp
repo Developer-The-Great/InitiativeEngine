@@ -52,52 +52,52 @@ namespace itv
 
 	void ExampleSystem::Run()
 	{
-		//find player archetype
-		ArchetypeQuery playerQuery = FindArchetypesWith<PlayerGun>();
-		ITV_LOG("Number of archetypes in playerQuery {0} ", playerQuery.Size());
+		////find player archetype
+		//ArchetypeQuery playerQuery = FindArchetypesWith<PlayerGun>();
+		//ITV_LOG("Number of archetypes in playerQuery {0} ", playerQuery.Size());
 
-		for (Archetype& archetype : playerQuery)
-		{
-			auto compArrayHandle = archetype.GetComponentArray<PlayerGun>();
+		//for (Archetype& archetype : playerQuery)
+		//{
+		//	auto compArrayHandle = archetype.GetComponentArray<PlayerGun>();
 
-			ITV_LOG("	Number of players in archetype {0} ", archetype.GetEntityCount());
+		//	ITV_LOG("	Number of players in archetype {0} ", archetype.GetEntityCount());
 
-			for (size_t i = 0; i < archetype.GetEntityCount(); i++)
-			{
-				ITV_LOG("		Current gun mode is {0} ", static_cast<int>(compArrayHandle[i].gunIdentifier) );
-			}
-		}
+		//	for (size_t i = 0; i < archetype.GetEntityCount(); i++)
+		//	{
+		//		ITV_LOG("		Current gun mode is {0} ", static_cast<int>(compArrayHandle[i].gunIdentifier) );
+		//	}
+		//}
 
 
 
-		//if player scrolls up
-			//switch gun up
+		////if player scrolls up
+		//	//switch gun up
 
-		//if player scrolls down 
-			//switch gun down
+		////if player scrolls down 
+		//	//switch gun down
 
-		//if player mouse click left
-			//shoot gun
+		////if player mouse click left
+		//	//shoot gun
 
-		//if player rotate
-			//rotate player
+		////if player rotate
+		//	//rotate player
 
-		//find Spawner areas
-		ArchetypeQuery spawnAreaQuery = FindArchetypesWith<EnemySpawnArea>();
-		ITV_LOG("Number of archetypes in spawnAreaQuery {0} ", spawnAreaQuery.Size());
+		////find Spawner areas
+		//ArchetypeQuery spawnAreaQuery = FindArchetypesWith<EnemySpawnArea>();
+		//ITV_LOG("Number of archetypes in spawnAreaQuery {0} ", spawnAreaQuery.Size());
 
-		for (Archetype& archetype : spawnAreaQuery)
-		{
-			auto compArrayHandle = archetype.GetComponentArray<EnemySpawnArea>();
+		//for (Archetype& archetype : spawnAreaQuery)
+		//{
+		//	auto compArrayHandle = archetype.GetComponentArray<EnemySpawnArea>();
 
-			ITV_LOG("Number of spawn areas in archetype {0} ", archetype.GetEntityCount());
+		//	ITV_LOG("Number of spawn areas in archetype {0} ", archetype.GetEntityCount());
 
-			for (size_t i = 0; i < archetype.GetEntityCount(); i++)
-			{
-				ITV_LOG("		Current spawn area gun mode is {0} ", static_cast<int>(compArrayHandle[i].gunIdentifier));
-			}
+		//	for (size_t i = 0; i < archetype.GetEntityCount(); i++)
+		//	{
+		//		ITV_LOG("		Current spawn area gun mode is {0} ", static_cast<int>(compArrayHandle[i].gunIdentifier));
+		//	}
 
-		}
+		//}
 
 		//for each spawner area 
 			//check if its time to spawn

@@ -6,11 +6,18 @@ namespace itv
 	{
 	}
 
-	void ECSSystemManager::InitializeSystem()
+	void ECSSystemManager::RegisterSystemComponents()
 	{
 		for (std::unique_ptr<ECSSystemBase>& system : mSystems)
 		{
 			system->RegisterComponents();
+		}
+	}
+
+	void ECSSystemManager::InitializeSystem()
+	{
+		for (std::unique_ptr<ECSSystemBase>& system : mSystems)
+		{
 			system->BeginRun();
 		}
 	}

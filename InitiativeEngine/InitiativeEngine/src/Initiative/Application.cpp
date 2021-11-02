@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "Containers\sparse_set.h"
 #include "ECS\ArchetypeManager.h"
-
+#include "Systems\GraphicsSystem\Components\WindowHandle.h"
 #include "ECS\ECSSystemManager.h"
 
 #include "Log.h"
@@ -28,11 +28,19 @@ namespace itv
 	{
 		ArchetypeManager archetypeManager;
 		ECSSystemManager systemManager(&archetypeManager);
-		
+
 		systemManager.RegisterCoreSystems();
 
 		ECSSystemRegistrationAdmin admin(&systemManager);
 		RegisterGameSystems(admin);
+
+		systemManager.RegisterSystemComponents();
+
+		
+		WindowHandle windHandle;
+		windHandle.window = mWindow;
+
+		archetypeManager.GetWorldEntity().AddComponent(windHandle);
 
 		systemManager.InitializeSystem();
 		

@@ -3,6 +3,21 @@
 
 using namespace itv;
 
+struct TestComponent1
+{
+	float a, b, c;
+};
+
+struct TestComponent2
+{
+	int b;
+};
+
+struct TestComponent3
+{
+	char b;
+}; 
+
 SCENARIO("ArchetypeManager puts all empty entities in the default transform", "[ECS]")
 {
 	GIVEN("An archetype manager")
@@ -34,7 +49,8 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 		ArchetypeManager archetypeManager;
 		itv::Entity firstEnt = archetypeManager.CreateEntity();
 
-		struct TestComponent1
+
+		/*struct TestComponent1
 		{
 			float a, b, c;
 		};
@@ -47,7 +63,7 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 		struct TestComponent3
 		{
 			char b;
-		};
+		};*/
 
 		constexpr TypeID comp1Hash = GenerateTypeHash<TestComponent1>();
 		constexpr TypeID comp2Hash = GenerateTypeHash<TestComponent2>();
@@ -107,6 +123,8 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 
 				auto comp12Arch = archetypeManager.GetArchetype
 				(ArchetypeType(std::vector<size_t>{comp1Hash,comp2Hash}));
+
+				REQUIRE( comp12Arch.has_value() );
 				
 				THEN("The entity is not in the old archetype")
 				{
@@ -131,6 +149,8 @@ SCENARIO("when a component is added to an entity it is moved from its original a
 
 					auto comp123Arch = archetypeManager.GetArchetype
 					(ArchetypeType(std::vector<size_t>{comp1Hash, comp2Hash, comp3Hash}));
+
+					REQUIRE( comp123Arch.has_value() );
 
 					THEN("The entity is not in the old archetype")
 					{
@@ -266,5 +286,98 @@ SCENARIO("When the archetypemanager is queried for a certain archetype it gets t
 		}
 
 
+	}
+}
+
+SCENARIO("Given the TypeIDs of a number of entities, we are able to retrieve components they own ", "[ECS]")
+{
+	GIVEN("An archetype manager and an entity containing a number of components")
+	{
+		ArchetypeManager archetypeManager;
+
+		/*struct TestComponent1
+		{
+			float a, b, c;
+		};
+
+		struct TestComponent2
+		{
+			int b;
+		};
+
+		struct TestComponent3
+		{
+			char b;
+		};*/
+
+
+		archetypeManager.RegisterComponent<TestComponent1>();
+		archetypeManager.RegisterComponent<TestComponent2>();
+		archetypeManager.RegisterComponent<TestComponent3>();
+
+		Entity testEntity = archetypeManager.CreateEntity();
+		TestComponent1 one;
+		one.a = 1;
+		one.b = 2;
+		one.c = 3;
+
+		TestComponent2 two;
+		two.b = 4;
+
+		testEntity.AddComponent(one);
+		testEntity.AddComponent(two);
+
+		WHEN("We call GetComponent for a Component that an entity has")
+		{
+			auto refOptionalOne = testEntity.GetComponent<TestComponent1>();
+			auto refOptionalTwo = testEntity.GetComponent<TestComponent2>();
+
+			THEN("The entity owns an instance of that component")
+			{
+				REQUIRE( refOptionalOne.has_value() );
+				REQUIRE( refOptionalTwo.has_value() );
+			}
+
+			THEN("We get a reference to that component")
+			{
+				TestComponent1& testRef1 = refOptionalOne.value().get();
+				TestComponent2& testRef2 = refOptionalTwo.value().get();
+				
+				REQUIRE( testRef1.a == 1 );
+				REQUIRE( testRef1.b == 2 );
+				REQUIRE( testRef1.c == 3 );
+				REQUIRE( testRef2.b == 4 );
+
+				WHEN("We modify that reference and re-retrieve the component through get component")
+				{
+					testRef1.a = 5;
+
+					testRef2.b = 6;
+
+					THEN("We get the modified version of the component")
+					{
+						auto NEW_refOptionalOne = testEntity.GetComponent<TestComponent1>();
+						auto NEW_refOptionalTwo = testEntity.GetComponent<TestComponent2>();
+
+						REQUIRE( NEW_refOptionalOne.has_value() );
+						REQUIRE( NEW_refOptionalTwo.has_value() );
+
+						TestComponent1& NEW_testRef1 = NEW_refOptionalOne.value().get();
+						TestComponent2& NEW_testRef2 = NEW_refOptionalTwo.value().get();
+
+						REQUIRE( NEW_testRef1.a == 5 );
+						REQUIRE( NEW_testRef2.b == 6 );
+
+
+					}
+
+
+				}
+
+
+			}
+
+
+		}
 	}
 }

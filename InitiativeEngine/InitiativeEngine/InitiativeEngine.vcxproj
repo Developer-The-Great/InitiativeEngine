@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;$(SolutionDir)InitiativeEngine\ThirdParty\TinyObjLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ITV_WINDOWS;ITV_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)InitiativeEngine\ThirdParty\spdlog\include;src;$(SolutionDir)InitiativeEngine\ThirdParty\GLFW\include\GLFW;$(SolutionDir)InitiativeEngine\ThirdParty\vulkan\Include;$(SolutionDir)InitiativeEngine\ThirdParty\Catch2\include;$(SolutionDir)InitiativeEngine\ThirdParty\glm;$(SolutionDir)InitiativeEngine\ThirdParty\stbImage;$(SolutionDir)InitiativeEngine\ThirdParty\TinyObjLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -108,8 +108,11 @@
     <ClInclude Include="src\Initiative\EntryPoint.h" />
     <ClInclude Include="src\Initiative\Events\Event.h" />
     <ClInclude Include="src\Initiative\Events\WindowEvents.h" />
+    <ClInclude Include="src\Initiative\FileUtils.h" />
     <ClInclude Include="src\Initiative\Log.h" />
     <ClInclude Include="src\Initiative\math.h" />
+    <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\WindowHandle.h" />
+    <ClInclude Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.h" />
     <ClInclude Include="src\Initiative\TypeHashing.h" />
     <ClInclude Include="src\Initiative\UnitTesting\UnitTest.h" />
     <ClInclude Include="src\Initiative\Window\Window.h" />
@@ -123,6 +126,7 @@
     <ClCompile Include="src\Initiative\ECS\ECSUtils.cpp" />
     <ClCompile Include="src\Initiative\Log.cpp" />
     <ClCompile Include="src\Initiative\Systems\CoreSystemRegistration.cpp" />
+    <ClCompile Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>
   <ItemGroup>

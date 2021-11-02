@@ -23,7 +23,7 @@ namespace itv
 
 		ObserverSubject& GetWindowSubject() override { return mData.subject; };
 		
-
+		void*		 GetWindowPtr() const override;
 	private:
 
 		void init(const WindowInfo& windowInfo);
@@ -41,9 +41,9 @@ namespace itv
 		GLFWwindow* mWindow;
 	};
 
-	std::unique_ptr<Window> Window::Create(const WindowInfo& info)
+	std::shared_ptr<Window> Window::Create(const WindowInfo& info)
 	{
-		return std::make_unique<GLFWWindow>(info);
+		return std::make_shared<GLFWWindow>(info);
 	}
 
 
