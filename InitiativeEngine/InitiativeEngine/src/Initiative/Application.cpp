@@ -27,8 +27,9 @@ namespace itv
 	void Application::Run()
 	{
 		ArchetypeManager archetypeManager;
-		ECSSystemManager systemManager(&archetypeManager);
+		archetypeManager.RegisterGenericComponents();
 
+		ECSSystemManager systemManager(&archetypeManager);
 		systemManager.RegisterCoreSystems();
 
 		ECSSystemRegistrationAdmin admin(&systemManager);

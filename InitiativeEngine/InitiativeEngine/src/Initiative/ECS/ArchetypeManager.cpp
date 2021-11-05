@@ -153,6 +153,6 @@ namespace itv
 	{
 		return mComponentHashToComponentActions.at(componentType).mTypeToComponentInstantiationFunc;
 	}
-	
+
 }
 

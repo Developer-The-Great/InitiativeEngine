@@ -33,9 +33,6 @@
     <ClInclude Include="src\Initiative\Events\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Initiative\Events\WindowEvents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Initiative\Window\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,10 +72,28 @@
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Initiative\FileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\GenericComponents\GenericComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\WindowHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Initiative\FileUtils.h">
+    <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\Events\WindowEvents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\Events\InputEvents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\InputCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,6 +123,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Initiative\GenericComponents\GenericComponents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Initiative\math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

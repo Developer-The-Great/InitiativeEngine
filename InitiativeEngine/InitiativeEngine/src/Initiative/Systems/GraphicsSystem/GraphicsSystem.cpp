@@ -1,5 +1,7 @@
 #include "GraphicsSystem.h"
 #include "Initiative\Systems\GraphicsSystem\Components\WindowHandle.h"
+#include "Initiative\Systems\GraphicsSystem\Components\Camera.h"
+#include "Initiative\GenericComponents\GenericComponents.h"
 
 #include <glfw3.h>
 
@@ -12,51 +14,6 @@
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
-
-namespace itv
-{
-	struct Vertex {
-		math::vec3 pos;
-		math::vec3 color;
-		math::vec2 texCoord;
-
-
-		static VkVertexInputBindingDescription getBindingDescription() {
-			VkVertexInputBindingDescription bindingDescription{};
-			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex);
-			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-			return bindingDescription;
-		}
-
-		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex, color);
-
-			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
-			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-			return attributeDescriptions;
-		}
-
-		bool operator==(const Vertex& other) const {
-			return pos == other.pos && color == other.color && texCoord == other.texCoord;
-		}
-
-	};
-}
-
 
 
 namespace std {
@@ -235,7 +192,7 @@ namespace itv
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
-		
+		createCommandBuffers();
 		createSyncObjects();
 	}
 
@@ -317,8 +274,8 @@ namespace itv
 	void GraphicsSystem::createSurface()
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(mWindow->GetWindowPtr());
-
-		if ( glfwCreateWindowSurface(mInstance, glfwWindow, nullptr, &mSurface) )
+		int bIsglfwVulkanSupported = glfwVulkanSupported();
+		if (VkResult windowCreate = glfwCreateWindowSurface(mInstance, glfwWindow, nullptr, &mSurface) )
 		{
 			throw std::runtime_error("failed to create window surface!");
 		}
@@ -605,8 +562,8 @@ namespace itv
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-		auto bindingDescription = Vertex::getBindingDescription();
-		auto attributeDescriptions = Vertex::getAttributeDescriptions();
+		auto bindingDescription = getBindingDescription();
+		auto attributeDescriptions = getAttributeDescriptions();
 
 
 		//[2] Describe how vertex input will be organized
@@ -1415,15 +1372,42 @@ namespace itv
 
 	void GraphicsSystem::updateUniformBuffer(uint32_t currentImage)
 	{
+		ArchetypeQuery cameraQuery = FindArchetypesWith<Transform,Camera>();
+
+		Transform trans;
+		Camera cam;
+
+		for (Archetype& cameraArchetype : cameraQuery)
+		{
+			ComponentArrayHandle<Transform> compHandleTransform = cameraArchetype.GetComponentArray<Transform>();
+			trans = compHandleTransform[0];
+
+			break;
+		}
+
 		static auto startTime = std::chrono::high_resolution_clock::now();
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+		math::mat4 correctRot = math::rotate(math::mat4(1.0f), math::radians(-90.0f) , math::vec3(0.0f, 1.0f, 0.0f));
+
+		auto camTransform = trans.GetLocalTransform();
+		auto forward = trans.GetForward();
+		auto up = trans.GetUp();
+
+		math::vec3 pos = camTransform[3];
+
+		//ITV_LOG(" dir forward {0} ", math::to_string(forward)  );
+		//ITV_LOG(" dir up {0} ", math::to_string(up) );
 		UniformBufferObject ubo{};
-		ubo.model = math::rotate(math::mat4(1.0f),math::radians(45.0f), math::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = math::lookAt(math::vec3(2.0f, 2.0f, 2.0f), math::vec3(0.0f, 0.0f, 0.0f), math::vec3(0.0f, 0.0f, 1.0f));
+		ubo.model = math::rotate(correctRot,math::radians(-90.0f), math::vec3(1.0f, 0.0f, 0.0f));
+		ubo.view = math::lookAt(pos, pos + forward, up);
 		ubo.proj = math::perspective(math::radians(45.0f), mSwapChainExtent.width / (float) mSwapChainExtent.height, 0.1f, 10.0f);
+		
+		//ITV_LOG(" matrix from inverse {0} ", math::to_string(math::inverse(camTransform)) );
+
+		//ITV_LOG(" matrix from lookAt {0} ", math::to_string(ubo.view));
 
 		ubo.proj[1][1] *= -1;
 
@@ -1661,7 +1645,7 @@ namespace itv
 	void GraphicsSystem::RegisterComponents()
 	{
 		RegisterComponent<WindowHandle>();
-
+		RegisterComponent<Camera>();
 	}
 
 	void GraphicsSystem::BeginRun()
@@ -1695,7 +1679,7 @@ namespace itv
 
 		mImagesInFlight[imageIndex] = mInFlightFences[currentFrame];
 
-		createCommandBuffers();
+		//createCommandBuffers();
 		updateUniformBuffer(imageIndex);
 
 		VkSubmitInfo submitInfo{};

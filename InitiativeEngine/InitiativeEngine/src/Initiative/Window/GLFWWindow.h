@@ -6,6 +6,7 @@ struct GLFWwindow;
 
 namespace itv
 {
+	
 	class GLFWWindow final : public Window
 	{
 	public:
@@ -15,13 +16,15 @@ namespace itv
 
 		void Update();
 
-		void SetVsync(bool enabled);
-		bool GetVsyncState() const					 { return mData.VSync;   };
+		void SetVsync(bool enabled) override;
+		bool GetVsyncState() const override						{ return mData.VSync;   };
 
-		int  GetWidth()  const override				 { return mData.Width;   };
-		int  GetHeight() const override			     { return mData.Height;  };
+		void SetMouseLockState(MouseLockState newLockState) override;
 
-		ObserverSubject& GetWindowSubject() override { return mData.subject; };
+		int  GetWidth()  const override							{ return mData.Width;   };
+		int  GetHeight() const override							{ return mData.Height;  };
+
+		ObserverSubject& GetWindowSubject() override			{ return mData.subject; };
 		
 		void*		 GetWindowPtr() const override;
 	private:
@@ -33,8 +36,11 @@ namespace itv
 			ObserverSubject subject;
 			std::string Title;
 			int Width, Height;
+			int prevMouseX, prevMouseY;
 			bool VSync;
 		};
+
+		
 
 		GLFWWindowData mData;
 

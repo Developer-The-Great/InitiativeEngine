@@ -1,5 +1,6 @@
 #pragma once
 #include "Initiative\ECS\ECSSystemBase.h"
+#include "Initiative\Events\InputEvents.h"
 
 namespace itv
 {
@@ -9,11 +10,14 @@ namespace itv
 	{
 	private:
 
+		Observer<MouseMoveEvent> mMouseMoveObserver;
+		Observer<InputEvent> mInputObserver;
 
+		
 
 	public:
 
-		ExampleSystem() = default;
+		ExampleSystem();
 		~ExampleSystem() = default;
 
 		void						    RegisterComponents() override;
