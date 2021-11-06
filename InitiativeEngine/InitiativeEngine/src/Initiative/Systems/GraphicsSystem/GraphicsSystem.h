@@ -71,6 +71,9 @@ namespace itv
 		std::vector<VkFence> mInFlightFences;
 		std::vector<VkFence> mImagesInFlight;
 
+		std::vector < VkBuffer > mObjectStorageBuffer;
+		std::vector < VkDeviceMemory > mObjectStorageBufferMemory;
+
 		VkBuffer mVertexBuffer;
 		VkDeviceMemory mVertexBufferMemory;
 
@@ -118,6 +121,7 @@ namespace itv
 		void createIndexBuffers();
 		void loadModel();
 		void createVertexBuffers();
+		void createStorageBuffers();
 		void createTextureImage();
 		void createTextureImageView();
 		void createTextureSampler();

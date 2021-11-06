@@ -30,6 +30,10 @@ namespace std {
 namespace itv
 {
 	
+	struct GPUObjectData
+	{
+		math::mat4 modelMatrix;
+	};
 
 	struct UniformBufferObject {
 		math::mat4 model;
@@ -99,6 +103,12 @@ namespace itv
 
 	void GraphicsSystem::cleanupSwapChain()
 	{
+		for (size_t i = 0; i < mSwapChainImages.size(); i++)
+		{
+			vkDestroyBuffer(mLogicalDevice, mObjectStorageBuffer[i], nullptr);
+			vkFreeMemory(mLogicalDevice, mObjectStorageBufferMemory[i], nullptr);
+		}
+
 		for (size_t i = 0; i < mSwapChainImages.size(); i++) {
 			vkDestroyBuffer( mLogicalDevice, mUniformBuffers[i], nullptr);
 			vkFreeMemory(mLogicalDevice, mUniformBuffersMemory[i], nullptr);
@@ -190,6 +200,7 @@ namespace itv
 		createTextureImageView();
 		createTextureSampler();
 		createUniformBuffers();
+		createStorageBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
 		createCommandBuffers();
@@ -513,8 +524,8 @@ namespace itv
 	{
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		uboLayoutBinding.pImmutableSamplers = nullptr;
 
@@ -525,8 +536,15 @@ namespace itv
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+		VkDescriptorSetLayoutBinding objectLayoutBinding{};
+		objectLayoutBinding.binding = 2;
+		objectLayoutBinding.descriptorCount = 1;
+		objectLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		objectLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		objectLayoutBinding.pImmutableSamplers = nullptr;
 
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+
+		std::array<VkDescriptorSetLayoutBinding, 3> bindings = { uboLayoutBinding, samplerLayoutBinding, objectLayoutBinding };
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -824,6 +842,23 @@ namespace itv
 		vkFreeMemory( mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
+	constexpr int MAX_OBJECTS = 1000;
+
+	void GraphicsSystem::createStorageBuffers()
+	{
+		VkDeviceSize bufferSize = sizeof(GPUObjectData) * MAX_OBJECTS;
+
+		mObjectStorageBuffer.resize(mSwapChainImages.size());
+		mObjectStorageBufferMemory.resize(mSwapChainImages.size());
+
+		for (size_t i = 0; i < mSwapChainImages.size(); i++)
+		{
+			createBuffer(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				mObjectStorageBuffer[i], mObjectStorageBufferMemory[i]);
+		}
+	}
+
 	void GraphicsSystem::createTextureImage()
 	{
 		int texWidth, texHeight, texChannels;
@@ -921,11 +956,15 @@ namespace itv
 
 	void GraphicsSystem::createDescriptorPool()
 	{
-		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		std::array<VkDescriptorPoolSize, 3> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
+
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
+
+		poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSizes[2].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -965,7 +1004,12 @@ namespace itv
 			imageInfo.imageView = mTextureImageView;
 			imageInfo.sampler = mTextureSampler;
 
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+			VkDescriptorBufferInfo storageBufferInfo{};
+			storageBufferInfo.buffer = mObjectStorageBuffer[i];
+			storageBufferInfo.offset = 0;
+			storageBufferInfo.range = sizeof(GPUObjectData);
+
+			std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
 			//Uniform Buffer
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet = descriptorSets[i];
@@ -983,6 +1027,13 @@ namespace itv
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
+			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[2].dstSet = descriptorSets[i];
+			descriptorWrites[2].dstBinding = 2;
+			descriptorWrites[2].dstArrayElement = 0;
+			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[2].descriptorCount = 1;
+			descriptorWrites[2].pBufferInfo = &storageBufferInfo;
 
 			vkUpdateDescriptorSets(mLogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 
