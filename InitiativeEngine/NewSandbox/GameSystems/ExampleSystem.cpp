@@ -5,6 +5,7 @@
 #include "Initiative\GenericComponents\GenericComponents.h"
 #include "Initiative\Systems\GraphicsSystem\Components\WindowHandle.h"
 #include "Initiative\InputCodes.h"
+#include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
 #include "Initiative\math.h"
 
 namespace itv
@@ -98,7 +99,7 @@ namespace itv
 		windowHandle.window->GetWindowSubject().RegisterObserver(mInputObserver);
 
 		// Create Camera
-		Camera camera(math::radians(45.0f), 0.1f, 10.0f);
+		Camera camera(math::radians(45.0f), 0.1f, 10000.0f);
 
 		math::vec3 position = math::vec3(0.0f, 1.0f, 3.0f);
 
@@ -145,6 +146,53 @@ namespace itv
 		ScoreTracker tracker;
 		scoreTracker.AddComponent(tracker);
 
+		//temporary
+		Mesh mesh;
+		Transform objectTransform;
+		
+		objectTransform.SetLocalPosition( math::vec3(0, 0, 0) );
+		objectTransform.SetLocalRotation( math::ConstructQuatFromVec( math::vec3(0, 1, 0), math::vec3(1, 0, 0) ) );
+		objectTransform.SetLocalScale( math::vec3(1) );
+
+		{
+			Entity renderTestEntity = CreateEntity();
+			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(objectTransform);
+		}
+		
+		{
+			objectTransform.SetLocalPosition(math::vec3(2, 0, 0));
+
+			Entity renderTestEntity = CreateEntity();
+			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(objectTransform);
+		}
+
+		{
+			objectTransform.SetLocalPosition(math::vec3(-2, 0, 0));
+
+			Entity renderTestEntity = CreateEntity();
+			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(objectTransform);
+		}
+
+		{
+			objectTransform.SetLocalPosition(math::vec3(0, 2, 0));
+
+			Entity renderTestEntity = CreateEntity();
+			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(objectTransform);
+		}
+
+		{
+			objectTransform.SetLocalPosition(math::vec3(0, -2, 0));
+
+			Entity renderTestEntity = CreateEntity();
+			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(objectTransform);
+		}
+
+		//Entity testHouse2 = CreateEntity();
 	}
 
 	void ExampleSystem::Run()

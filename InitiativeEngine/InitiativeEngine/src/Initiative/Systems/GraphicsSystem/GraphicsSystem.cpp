@@ -2,6 +2,7 @@
 #include "Initiative\Systems\GraphicsSystem\Components\WindowHandle.h"
 #include "Initiative\Systems\GraphicsSystem\Components\Camera.h"
 #include "Initiative\GenericComponents\GenericComponents.h"
+#include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
 
 #include <glfw3.h>
 
@@ -15,6 +16,11 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#ifdef NDEBUG
+constexpr bool enableValidationLayers = false;
+#else
+constexpr bool enableValidationLayers = true;
+#endif
 
 namespace std {
 
@@ -74,6 +80,7 @@ namespace itv
 		vkDestroyImageView( mLogicalDevice, mTextureImageView, nullptr);
 
 		vkDestroyDescriptorSetLayout(mLogicalDevice, descriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(mLogicalDevice, mObjectDescriptorSetLayout, nullptr);
 
 		vkDestroyBuffer( mLogicalDevice, mIndexBuffer, nullptr);
 		vkFreeMemory( mLogicalDevice, mIndexBufferMemory, nullptr);
@@ -224,7 +231,7 @@ namespace itv
 		appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 		appInfo.pEngineName = "Initiative Engine";
 		appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_0;
+		appInfo.apiVersion = VK_API_VERSION_1_1;
 
 		//[2] Init Create Info using appInfo
 		VkInstanceCreateInfo createInfo{};
@@ -522,6 +529,8 @@ namespace itv
 
 	void GraphicsSystem::createDescriptorSetLayout()
 	{
+		// Uniform Descriptor
+
 		VkDescriptorSetLayoutBinding uboLayoutBinding{};
 		uboLayoutBinding.binding = 0;
 		uboLayoutBinding.descriptorCount = 1;
@@ -533,18 +542,11 @@ namespace itv
 		samplerLayoutBinding.binding = 1;
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		
 
-		VkDescriptorSetLayoutBinding objectLayoutBinding{};
-		objectLayoutBinding.binding = 2;
-		objectLayoutBinding.descriptorCount = 1;
-		objectLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		objectLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		objectLayoutBinding.pImmutableSamplers = nullptr;
-
-
-		std::array<VkDescriptorSetLayoutBinding, 3> bindings = { uboLayoutBinding, samplerLayoutBinding, objectLayoutBinding };
+		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -555,6 +557,24 @@ namespace itv
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
 
+		// Storage Descriptor
+
+		VkDescriptorSetLayoutBinding objectLayoutBinding{};
+		objectLayoutBinding.binding = 0;
+		objectLayoutBinding.descriptorCount = 1;
+		objectLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		objectLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		objectLayoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo objectLayoutInfo{};
+		objectLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		objectLayoutInfo.bindingCount = 1;
+		objectLayoutInfo.pBindings = &objectLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(mLogicalDevice, &objectLayoutInfo, nullptr, &mObjectDescriptorSetLayout) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create descriptor set layout!");
+		}
+			
 	}
 
 	void GraphicsSystem::createGraphicsPipeline()
@@ -673,10 +693,12 @@ namespace itv
 		dynamicState.dynamicStateCount = 2;
 		dynamicState.pDynamicStates = dynamicStates;
 
+		std::array<VkDescriptorSetLayout,2> setLayouts = { descriptorSetLayout, mObjectDescriptorSetLayout };
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(setLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = setLayouts.data();
 
 		if (vkCreatePipelineLayout(mLogicalDevice, &pipelineLayoutInfo, nullptr, &mPipelineLayout) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create pipeline layout!");
@@ -739,7 +761,7 @@ namespace itv
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-		poolInfo.flags = 0; // Optional
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 
 		if (vkCreateCommandPool(mLogicalDevice, &poolInfo, nullptr, &mCommandPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create command pool!");
@@ -842,11 +864,11 @@ namespace itv
 		vkFreeMemory( mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-	constexpr int MAX_OBJECTS = 1000;
+	constexpr int MAX_RENDER_OBJECTS = 1000;
 
 	void GraphicsSystem::createStorageBuffers()
 	{
-		VkDeviceSize bufferSize = sizeof(GPUObjectData) * MAX_OBJECTS;
+		VkDeviceSize bufferSize = sizeof(GPUObjectData) * MAX_RENDER_OBJECTS;
 
 		mObjectStorageBuffer.resize(mSwapChainImages.size());
 		mObjectStorageBufferMemory.resize(mSwapChainImages.size());
@@ -970,7 +992,7 @@ namespace itv
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = static_cast<uint32_t>( mSwapChainImages.size() );
+		poolInfo.maxSets = static_cast<uint32_t>( mSwapChainImages.size() ) * 2;
 
 		if (vkCreateDescriptorPool(mLogicalDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor pool!");
@@ -980,6 +1002,22 @@ namespace itv
 
 	void GraphicsSystem::createDescriptorSets()
 	{
+		//init object descriptor sets
+		std::vector<VkDescriptorSetLayout> objectLayouts(mSwapChainImages.size(), mObjectDescriptorSetLayout);
+		VkDescriptorSetAllocateInfo objectDescriptorAllocInfo{};
+		objectDescriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		objectDescriptorAllocInfo.descriptorPool = mDescriptorPool;
+		objectDescriptorAllocInfo.descriptorSetCount = static_cast<uint32_t>(mSwapChainImages.size());
+		objectDescriptorAllocInfo.pSetLayouts = objectLayouts.data();
+
+		mObjectDescriptorSets.resize(mSwapChainImages.size());
+		if (vkAllocateDescriptorSets(mLogicalDevice, &objectDescriptorAllocInfo, mObjectDescriptorSets.data()) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+
+		//init uniform descriptor sets
 		std::vector<VkDescriptorSetLayout> layouts( mSwapChainImages.size(), descriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -987,10 +1025,13 @@ namespace itv
 		allocInfo.descriptorSetCount = static_cast<uint32_t>( mSwapChainImages.size());
 		allocInfo.pSetLayouts = layouts.data();
 
-		descriptorSets.resize( mSwapChainImages.size());
-		if (vkAllocateDescriptorSets( mLogicalDevice, &allocInfo, descriptorSets.data() ) != VK_SUCCESS) {
+		mUniformDescriptorSets.resize( mSwapChainImages.size());
+		if (vkAllocateDescriptorSets( mLogicalDevice, &allocInfo, mUniformDescriptorSets.data() ) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
+
+		
+
 
 		for (size_t i = 0; i < mSwapChainImages.size(); i++)
 		{
@@ -1007,12 +1048,12 @@ namespace itv
 			VkDescriptorBufferInfo storageBufferInfo{};
 			storageBufferInfo.buffer = mObjectStorageBuffer[i];
 			storageBufferInfo.offset = 0;
-			storageBufferInfo.range = sizeof(GPUObjectData);
+			storageBufferInfo.range = sizeof(GPUObjectData) * MAX_RENDER_OBJECTS;
 
 			std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
 			//Uniform Buffer
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
+			descriptorWrites[0].dstSet = mUniformDescriptorSets[i];
 			descriptorWrites[0].dstBinding = 0;
 			descriptorWrites[0].dstArrayElement = 0;
 			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1020,7 +1061,7 @@ namespace itv
 			descriptorWrites[0].pBufferInfo = &bufferInfo;
 
 			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
+			descriptorWrites[1].dstSet = mUniformDescriptorSets[i];
 			descriptorWrites[1].dstBinding = 1;
 			descriptorWrites[1].dstArrayElement = 0;
 			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1028,8 +1069,8 @@ namespace itv
 			descriptorWrites[1].pImageInfo = &imageInfo;
 
 			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[2].dstSet = descriptorSets[i];
-			descriptorWrites[2].dstBinding = 2;
+			descriptorWrites[2].dstSet = mObjectDescriptorSets[i];
+			descriptorWrites[2].dstBinding = 0;
 			descriptorWrites[2].dstArrayElement = 0;
 			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			descriptorWrites[2].descriptorCount = 1;
@@ -1055,53 +1096,70 @@ namespace itv
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 
-		for (size_t i = 0; i < commandBuffers.size(); i++)
+	}
+
+	void GraphicsSystem::recordCommandBuffers( uint32_t frameIndex )
+	{
+		ArchetypeQuery renderableQuery = FindArchetypesWith<Transform, Mesh>();
+
+		vkResetCommandBuffer(commandBuffers[frameIndex], 0);
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(commandBuffers[frameIndex], &beginInfo) != VK_SUCCESS) 
 		{
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = mRenderPass;
+		renderPassInfo.framebuffer = mSwapChainFramebuffers[frameIndex];
 
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = mRenderPass;
-			renderPassInfo.framebuffer = mSwapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = mSwapChainExtent;
 
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = mSwapChainExtent;
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
 
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-			clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		vkCmdBeginRenderPass(commandBuffers[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		for (Archetype& renderableArchetype : renderableQuery)
+		{
+			size_t currentArchetpyeCount = renderableArchetype.GetEntityCount();
 
-			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, mGraphicsPipeline);
+			for (size_t i = 0; i < renderableArchetype.GetEntityCount(); i++)
+			{
+				vkCmdBindPipeline(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, mGraphicsPipeline);
 
-			VkBuffer vertexBuffers[] = { mVertexBuffer };
-			VkDeviceSize offsets[] = { 0 };
-			vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+				VkBuffer vertexBuffers[] = { mVertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+				vkCmdBindVertexBuffers(commandBuffers[frameIndex], 0, 1, vertexBuffers, offsets);
 
-			vkCmdBindIndexBuffer(commandBuffers[i], mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindIndexBuffer(commandBuffers[frameIndex], mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-				mPipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+					mPipelineLayout, 0, 1, &mUniformDescriptorSets[frameIndex], 0, nullptr);
 
-			vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+					mPipelineLayout, 1, 1, &mObjectDescriptorSets[frameIndex], 0, nullptr);
 
-			vkCmdEndRenderPass(commandBuffers[i]);
+				vkCmdDrawIndexed(commandBuffers[frameIndex], static_cast<uint32_t>(indices.size()), 1, 0, 0, i);
+				//vkCmdDraw(commandBuffers[frameIndex], static_cast<uint32_t>(vertices.size()), 1, 0, i);
 
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
 			}
 		}
 
+		vkCmdEndRenderPass(commandBuffers[frameIndex]);
 
+		if (vkEndCommandBuffer(commandBuffers[frameIndex]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
 	}
 
 	void GraphicsSystem::createSyncObjects()
@@ -1151,6 +1209,7 @@ namespace itv
 		createGraphicsPipeline();
 		createDepthResources();
 		createFrameBuffers();
+		createStorageBuffers();
 		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
@@ -1423,15 +1482,18 @@ namespace itv
 
 	void GraphicsSystem::updateUniformBuffer(uint32_t currentImage)
 	{
-		ArchetypeQuery cameraQuery = FindArchetypesWith<Transform,Camera>();
+		ArchetypeQuery cameraQuery = FindArchetypesWith< Transform,Camera >();
 
 		Transform trans;
-		Camera cam;
+		Camera firstCamera;
 
 		for (Archetype& cameraArchetype : cameraQuery)
 		{
 			ComponentArrayHandle<Transform> compHandleTransform = cameraArchetype.GetComponentArray<Transform>();
 			trans = compHandleTransform[0];
+
+			ComponentArrayHandle<Camera> compHandleCamera = cameraArchetype.GetComponentArray<Camera>();
+			firstCamera = compHandleCamera[0];
 
 			break;
 		}
@@ -1452,9 +1514,9 @@ namespace itv
 		//ITV_LOG(" dir forward {0} ", math::to_string(forward)  );
 		//ITV_LOG(" dir up {0} ", math::to_string(up) );
 		UniformBufferObject ubo{};
-		ubo.model = math::rotate(correctRot,math::radians(-90.0f), math::vec3(1.0f, 0.0f, 0.0f));
+		
 		ubo.view = math::lookAt(pos, pos + forward, up);
-		ubo.proj = math::perspective(math::radians(45.0f), mSwapChainExtent.width / (float) mSwapChainExtent.height, 0.1f, 10.0f);
+		ubo.proj = math::perspective(firstCamera.Fovy , mSwapChainExtent.width / (float) mSwapChainExtent.height, firstCamera.NearPlane, firstCamera.FarPlane);
 		
 		//ITV_LOG(" matrix from inverse {0} ", math::to_string(math::inverse(camTransform)) );
 
@@ -1468,6 +1530,29 @@ namespace itv
 		vkUnmapMemory(mLogicalDevice, mUniformBuffersMemory[currentImage]);
 
 
+		void* objectData;
+		vkMapMemory(mLogicalDevice, mObjectStorageBufferMemory[currentImage], 0, sizeof(GPUObjectData) * MAX_RENDER_OBJECTS,0, &objectData);
+		GPUObjectData* objectSSBO = (GPUObjectData*)objectData;
+
+		ArchetypeQuery renderableQuery = FindArchetypesWith<Transform, Mesh>();
+
+		size_t entityCount = 0;
+		for (Archetype& renderArchetype : renderableQuery)
+		{
+			auto transformArray = renderArchetype.GetComponentArray<Transform>();
+	
+
+			for (size_t i = 0; i < renderArchetype.GetEntityCount(); i++)
+			{
+				objectSSBO[entityCount].modelMatrix = transformArray[i].GetLocalTransform();
+
+
+				entityCount++;
+			}
+		}
+
+		ITV_LOG("UpdateUniformBuffer {0}", entityCount);
+		vkUnmapMemory(mLogicalDevice, mObjectStorageBufferMemory[currentImage]);
 	}
 
 	void GraphicsSystem::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
@@ -1697,6 +1782,7 @@ namespace itv
 	{
 		RegisterComponent<WindowHandle>();
 		RegisterComponent<Camera>();
+		RegisterComponent<Mesh>();
 	}
 
 	void GraphicsSystem::BeginRun()
@@ -1730,8 +1816,9 @@ namespace itv
 
 		mImagesInFlight[imageIndex] = mInFlightFences[currentFrame];
 
-		//createCommandBuffers();
 		updateUniformBuffer(imageIndex);
+		recordCommandBuffers(imageIndex);
+		
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

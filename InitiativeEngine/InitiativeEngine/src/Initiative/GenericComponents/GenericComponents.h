@@ -22,7 +22,7 @@ namespace itv
 
 		inline void			SetLocalPosition(const math::vec3& pos) { mLocalPosition = pos; }
 		inline void			SetLocalScale(const math::vec3& scale) { mLocalScale = scale; }
-		inline void			SetLocalRotation(const math::quat& rotation) { mLocalRotation = mLocalRotation; }
+		inline void			SetLocalRotation(const math::quat& rotation) { mLocalRotation = rotation; }
 
 		ITV_API math::vec3	GetForward() const;
 		ITV_API math::vec3	GetUp() const;
@@ -42,9 +42,9 @@ namespace itv
 	private:
 
 		
-		math::quat mLocalRotation;
-		math::vec3 mLocalPosition;
-		math::vec3 mLocalScale;
+		math::quat mLocalRotation = math::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		math::vec3 mLocalPosition = math::vec3();
+		math::vec3 mLocalScale	  = math::vec3();;
 		
 		int indexOnArchetype;
 

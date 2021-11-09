@@ -7,11 +7,7 @@ namespace itv
 {
 	class Window;
 
-#ifdef NDEBUG
-	constexpr bool enableValidationLayers = false;
-#else
-	constexpr bool enableValidationLayers = true;
-#endif
+
 
 	class GraphicsSystem : public ECSSystemBase
 	{
@@ -47,6 +43,8 @@ namespace itv
 		std::vector<VkImage> mSwapChainImages;
 		VkFormat mSwapChainImageFormat;
 		VkExtent2D mSwapChainExtent;
+
+		VkDescriptorSetLayout mObjectDescriptorSetLayout;
 
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout mPipelineLayout;
@@ -88,7 +86,9 @@ namespace itv
 		std::vector<VkBuffer> mUniformBuffers;
 		std::vector<VkDeviceMemory> mUniformBuffersMemory;
 
-		std::vector<VkDescriptorSet> descriptorSets;
+		std::vector<VkDescriptorSet> mUniformDescriptorSets;
+		std::vector<VkDescriptorSet> mObjectDescriptorSets;
+
 
 		VkImageView mTextureImageView;
 		VkSampler mTextureSampler;
@@ -129,6 +129,7 @@ namespace itv
 		void createDescriptorPool();
 		void createDescriptorSets();
 		void createCommandBuffers();
+		void recordCommandBuffers(uint32_t frameIndex);
 		void createSyncObjects();
 
 		void recreateSwapChain();
