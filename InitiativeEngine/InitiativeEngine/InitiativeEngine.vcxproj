@@ -117,7 +117,9 @@
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\Camera.h" />
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\Mesh.h" />
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Components\WindowHandle.h" />
+    <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Data\Material.h" />
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.h" />
+    <ClInclude Include="src\Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h" />
     <ClInclude Include="src\Initiative\TypeHashing.h" />
     <ClInclude Include="src\Initiative\UnitTesting\UnitTest.h" />
     <ClInclude Include="src\Initiative\Window\Window.h" />
@@ -134,6 +136,7 @@
     <ClCompile Include="src\Initiative\math.cpp" />
     <ClCompile Include="src\Initiative\Systems\CoreSystemRegistration.cpp" />
     <ClCompile Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.cpp" />
+    <ClCompile Include="src\Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />
   </ItemGroup>
   <ItemGroup>

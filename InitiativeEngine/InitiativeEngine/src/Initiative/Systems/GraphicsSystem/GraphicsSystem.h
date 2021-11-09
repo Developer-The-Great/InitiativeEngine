@@ -7,7 +7,14 @@ namespace itv
 {
 	class Window;
 
+	struct VulkanVertexBuffer
+	{
+		VkBuffer mVertexBuffer{};
+		VkDeviceMemory mVertexBufferMemory{};
 
+		VkBuffer mIndexBuffer{};
+		VkDeviceMemory mIndexBufferMemory{};
+	};
 
 	class GraphicsSystem : public ECSSystemBase
 	{
@@ -30,6 +37,7 @@ namespace itv
 			std::vector<VkPresentModeKHR> presentModes;
 		};
 
+		std::vector< VulkanVertexBuffer > mTriangleMeshBuffers;
 
 		
 		VkInstance mInstance;
@@ -72,11 +80,11 @@ namespace itv
 		std::vector < VkBuffer > mObjectStorageBuffer;
 		std::vector < VkDeviceMemory > mObjectStorageBufferMemory;
 
-		VkBuffer mVertexBuffer;
-		VkDeviceMemory mVertexBufferMemory;
+		//VkBuffer mVertexBuffer;
+		//VkDeviceMemory mVertexBufferMemory;
 
-		VkBuffer mIndexBuffer;
-		VkDeviceMemory mIndexBufferMemory;
+		/*VkBuffer mIndexBuffer;
+		VkDeviceMemory mIndexBufferMemory;*/
 
 		VkImage textureImage;
 		VkDeviceMemory textureImageMemory;
@@ -88,6 +96,7 @@ namespace itv
 
 		std::vector<VkDescriptorSet> mUniformDescriptorSets;
 		std::vector<VkDescriptorSet> mObjectDescriptorSets;
+
 
 
 		VkImageView mTextureImageView;
@@ -118,9 +127,9 @@ namespace itv
 		void createFrameBuffers();
 		void createCommandPool();
 		void createDepthResources();
-		void createIndexBuffers();
+		void createIndexBuffers(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices);
 		void loadModel();
-		void createVertexBuffers();
+		void createVertexBuffers(VkBuffer& vertexBuffer,VkDeviceMemory& vertexBufferMemory,const std::vector<Vertex>& vertices);
 		void createStorageBuffers();
 		void createTextureImage();
 		void createTextureImageView();
@@ -232,7 +241,7 @@ namespace itv
 
 	public:
 	
-
+		int LoadMeshIntoGraphicsSystem( const std::vector<Vertex>& vertices, const std::vector<uint32_t> indices );
 		
 
 		GraphicsSystem();

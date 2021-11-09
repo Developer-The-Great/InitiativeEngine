@@ -3,6 +3,7 @@
 #include "Initiative\Systems\GraphicsSystem\Components\Camera.h"
 #include "Initiative\GenericComponents\GenericComponents.h"
 #include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
+#include "Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h"
 
 #include <glfw3.h>
 
@@ -13,25 +14,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
-
 #ifdef NDEBUG
 constexpr bool enableValidationLayers = false;
 #else
 constexpr bool enableValidationLayers = true;
 #endif
 
-namespace std {
-
-	template<> struct hash<itv::Vertex> {
-		size_t operator()(itv::Vertex const& vertex) const {
-			return ((hash<itv::math::vec3>()(vertex.pos) ^
-				(hash<itv::math::vec3>()(vertex.color) << 1)) >> 1) ^
-				(hash<itv::math::vec2>()(vertex.texCoord) << 1);
-		}
-	};
-}
 
 namespace itv
 {
@@ -47,14 +35,29 @@ namespace itv
 		math::mat4 proj;
 	};
 
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
+	//std::vector<Vertex> vertices;
+	//std::vector<uint32_t> indices;
 
 	constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
+	int GraphicsSystem::LoadMeshIntoGraphicsSystem(const std::vector<Vertex>& vertices, const std::vector<uint32_t> indices)
+	{
+		//get index for new vertex buffer
+		int index = mTriangleMeshBuffers.size();
+
+		mTriangleMeshBuffers.push_back( VulkanVertexBuffer() );
+
+		//create vertex buffer
+		createVertexBuffers(mTriangleMeshBuffers[index].mVertexBuffer, mTriangleMeshBuffers[index].mVertexBufferMemory,vertices );
+		createIndexBuffers(mTriangleMeshBuffers[index].mIndexBuffer, mTriangleMeshBuffers[index].mIndexBufferMemory, indices);
+
+		return index;
+		
+	}
+
 	GraphicsSystem::GraphicsSystem()
 	{
-		
+		GraphicsObjectLoader::Init(this);
 
 	}
 
@@ -82,11 +85,11 @@ namespace itv
 		vkDestroyDescriptorSetLayout(mLogicalDevice, descriptorSetLayout, nullptr);
 		vkDestroyDescriptorSetLayout(mLogicalDevice, mObjectDescriptorSetLayout, nullptr);
 
-		vkDestroyBuffer( mLogicalDevice, mIndexBuffer, nullptr);
-		vkFreeMemory( mLogicalDevice, mIndexBufferMemory, nullptr);
+		//vkDestroyBuffer( mLogicalDevice, mIndexBuffer, nullptr);
+		//vkFreeMemory( mLogicalDevice, mIndexBufferMemory, nullptr);
 
-		vkDestroyBuffer( mLogicalDevice, mVertexBuffer, nullptr);
-		vkFreeMemory( mLogicalDevice, mVertexBufferMemory, nullptr);
+		/*vkDestroyBuffer( mLogicalDevice, mVertexBuffer, nullptr);
+		vkFreeMemory( mLogicalDevice, mVertexBufferMemory, nullptr);*/
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
@@ -201,8 +204,8 @@ namespace itv
 		createDepthResources();
 		createFrameBuffers();
 		loadModel();
-		createVertexBuffers();
-		createIndexBuffers();
+		//createVertexBuffers();
+		//createIndexBuffers();
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
@@ -779,7 +782,7 @@ namespace itv
 
 	}
 
-	void GraphicsSystem::createIndexBuffers()
+	void GraphicsSystem::createIndexBuffers( VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices )
 	{
 		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
@@ -794,9 +797,9 @@ namespace itv
 		vkUnmapMemory(mLogicalDevice, stagingBufferMemory);
 
 		createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mIndexBuffer, mIndexBufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		copyBuffer(stagingBuffer, mIndexBuffer, bufferSize);
+		copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
 		vkDestroyBuffer(mLogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory(mLogicalDevice, stagingBufferMemory, nullptr);
@@ -804,7 +807,7 @@ namespace itv
 
 	void GraphicsSystem::loadModel()
 	{
-		tinyobj::attrib_t attrib;
+		/*tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
@@ -837,11 +840,11 @@ namespace itv
 
 				indices.push_back(uniqueVertices[vertex]);
 			}
-		}
+		}*/
 
 	}
 
-	void GraphicsSystem::createVertexBuffers()
+	void GraphicsSystem::createVertexBuffers(VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory, const std::vector<Vertex>& vertices)
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -856,9 +859,9 @@ namespace itv
 		vkUnmapMemory(mLogicalDevice, stagingBufferMemory);
 
 		createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer, mVertexBufferMemory);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-		copyBuffer(stagingBuffer, mVertexBuffer, bufferSize);
+		copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
 		vkDestroyBuffer( mLogicalDevice, stagingBuffer, nullptr);
 		vkFreeMemory( mLogicalDevice, stagingBufferMemory, nullptr);
@@ -1133,15 +1136,19 @@ namespace itv
 		{
 			size_t currentArchetpyeCount = renderableArchetype.GetEntityCount();
 
+			auto meshArray = renderableArchetype.GetComponentArray<Mesh>();
+
 			for (size_t i = 0; i < renderableArchetype.GetEntityCount(); i++)
 			{
 				vkCmdBindPipeline(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, mGraphicsPipeline);
 
-				VkBuffer vertexBuffers[] = { mVertexBuffer };
+				VulkanVertexBuffer& buffer = mTriangleMeshBuffers[meshArray[i].BufferIndex]; //TODO should only bind new buffers when buffers actually change
+
+				VkBuffer vertexBuffers[] = { buffer.mVertexBuffer };
 				VkDeviceSize offsets[] = { 0 };
 				vkCmdBindVertexBuffers(commandBuffers[frameIndex], 0, 1, vertexBuffers, offsets);
 
-				vkCmdBindIndexBuffer(commandBuffers[frameIndex], mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindIndexBuffer(commandBuffers[frameIndex], buffer.mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
 				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 0, 1, &mUniformDescriptorSets[frameIndex], 0, nullptr);
@@ -1149,7 +1156,7 @@ namespace itv
 				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 1, 1, &mObjectDescriptorSets[frameIndex], 0, nullptr);
 
-				vkCmdDrawIndexed(commandBuffers[frameIndex], static_cast<uint32_t>(indices.size()), 1, 0, 0, i);
+				vkCmdDrawIndexed(commandBuffers[frameIndex], static_cast<uint32_t>(meshArray[i].Indices.size()), 1, 0, 0, i);
 				//vkCmdDraw(commandBuffers[frameIndex], static_cast<uint32_t>(vertices.size()), 1, 0, i);
 
 			}

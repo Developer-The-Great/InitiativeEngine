@@ -1,9 +1,14 @@
 #pragma once
 #include "Initiative\Core.h"
 #include "Initiative\math.h"
+#include "Initiative\Log.h"
+
 
 namespace itv
 {
+	
+
+
 	struct Vertex {
 		math::vec3 pos;
 		math::vec3 color;
@@ -15,15 +20,56 @@ namespace itv
 
 	};
 
-
 	struct Mesh
 	{
-		std::vector<Vertex> vertices;
-		std::vector<uint32_t> indices;
+		std::vector<Vertex> Vertices;
+		std::vector<uint32_t> Indices;
 
+		int BufferIndex = -1;
+		int MaterialIndex = -1;
 
+		Mesh() { ITV_LOG("CTR");  }
+		~Mesh() = default;
+
+		Mesh(std::vector<Vertex>&& vertices, std::vector<uint32_t>&& indices, int bufferIndex) 
+			: Vertices( std::move(vertices) ), Indices( std::move(indices) ), BufferIndex(bufferIndex)
+		{
+			ITV_LOG("MOVE");
+		}
+
+		Mesh(const Mesh& meshToCopy) 
+			: Vertices(meshToCopy.Vertices), Indices(meshToCopy.Indices), 
+			BufferIndex(meshToCopy.BufferIndex), MaterialIndex(meshToCopy.MaterialIndex)
+		{
+			ITV_LOG("CPY CTR");
+		}
+
+		Mesh(Mesh&& tempMesh) noexcept 
+			: Vertices(std::move(tempMesh.Vertices)), Indices(std::move(tempMesh.Indices)),
+			BufferIndex(tempMesh.BufferIndex), MaterialIndex(tempMesh.MaterialIndex)
+		{
+			ITV_LOG("MOVE CTR");
+		}
+
+		Mesh& operator=(Mesh&& other) {
+			Vertices = std::move(other.Vertices);
+			Indices = std::move(other.Indices);
+			BufferIndex = other.BufferIndex;
+			MaterialIndex = other.MaterialIndex;
+			ITV_LOG("MOVE ASSIGN CTR");
+			return *this;
+		}
 	};
 
+}
 
-
+namespace std
+{
+	template<> struct hash<itv::Vertex> {
+		size_t operator()(itv::Vertex const& vertex) const {
+			return ((hash<itv::math::vec3>()(vertex.pos) ^
+				(hash<itv::math::vec3>()(vertex.color) << 1)) >> 1) ^
+				(hash<itv::math::vec2>()(vertex.texCoord) << 1);
+		}
+	};
 }

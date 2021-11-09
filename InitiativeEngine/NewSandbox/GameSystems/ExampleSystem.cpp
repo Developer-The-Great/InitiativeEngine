@@ -7,6 +7,7 @@
 #include "Initiative\InputCodes.h"
 #include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
 #include "Initiative\math.h"
+#include "Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h"
 
 namespace itv
 {
@@ -147,7 +148,8 @@ namespace itv
 		scoreTracker.AddComponent(tracker);
 
 		//temporary
-		Mesh mesh;
+		Mesh mesh = GraphicsObjectLoader::LoadMesh("Models/viking_room.obj");
+
 		Transform objectTransform;
 		
 		objectTransform.SetLocalPosition( math::vec3(0, 0, 0) );

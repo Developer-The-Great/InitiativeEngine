@@ -9,9 +9,6 @@ namespace itv::math
 		math::vec3 rightNorm = math::normalize(math::cross(up, forwardNorm));
 		math::vec3 upNorm = math::normalize(math::cross(forwardNorm,rightNorm));
 
-		
-
-
 		math::mat3 mat3 = math::mat3(rightNorm, upNorm, forwardNorm) ;
 
 
