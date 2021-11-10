@@ -57,5 +57,12 @@ namespace itv
 
 		return Mesh(std::move(vertices), std::move(indices), index);
 	}
+
+	int ITV_API GraphicsObjectLoader::LoadTexture(const char* fileLocation)
+	{
+
+		return -1;
+	}
+
 }
 

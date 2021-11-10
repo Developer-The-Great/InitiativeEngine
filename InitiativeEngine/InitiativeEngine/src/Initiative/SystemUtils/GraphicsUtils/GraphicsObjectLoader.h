@@ -1,6 +1,7 @@
 #pragma once
 #include "Initiative\Core.h"
 #include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
+#include "Initiative\Systems\GraphicsSystem\Data\Material.h"
 
 namespace itv
 {
@@ -10,10 +11,11 @@ namespace itv
 	{
 	public:
 
-		static void Init(GraphicsSystem* currentGraphicsSystem);
+		static void				Init(GraphicsSystem* currentGraphicsSystem);
 
-		static Mesh ITV_API LoadMesh(const char* fileLocation);
+		static Mesh		ITV_API LoadMesh(const char* fileLocation);
 
+		static int		ITV_API LoadTexture(const char* fileLocation);
 
 	private:
 

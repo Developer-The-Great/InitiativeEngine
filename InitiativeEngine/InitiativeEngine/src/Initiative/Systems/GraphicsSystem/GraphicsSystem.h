@@ -38,7 +38,7 @@ namespace itv
 		};
 
 		std::vector< VulkanVertexBuffer > mTriangleMeshBuffers;
-
+		std::vector< VkDescriptorSet >	  mTextureDescriptors;
 		
 		VkInstance mInstance;
 		VkDebugUtilsMessengerEXT mDebugMessenger;
@@ -130,6 +130,9 @@ namespace itv
 		void createIndexBuffers(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices);
 		void loadModel();
 		void createVertexBuffers(VkBuffer& vertexBuffer,VkDeviceMemory& vertexBufferMemory,const std::vector<Vertex>& vertices);
+
+
+
 		void createStorageBuffers();
 		void createTextureImage();
 		void createTextureImageView();
@@ -243,6 +246,7 @@ namespace itv
 	
 		int LoadMeshIntoGraphicsSystem( const std::vector<Vertex>& vertices, const std::vector<uint32_t> indices );
 		
+		int LoadTextureIntoGraphicsSystem(const char* fileLocation);
 
 		GraphicsSystem();
 		~GraphicsSystem() override;

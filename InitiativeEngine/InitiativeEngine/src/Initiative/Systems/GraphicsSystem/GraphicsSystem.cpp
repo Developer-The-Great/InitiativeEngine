@@ -48,8 +48,8 @@ namespace itv
 		mTriangleMeshBuffers.push_back( VulkanVertexBuffer() );
 
 		//create vertex buffer
-		createVertexBuffers(mTriangleMeshBuffers[index].mVertexBuffer, mTriangleMeshBuffers[index].mVertexBufferMemory,vertices );
-		createIndexBuffers(mTriangleMeshBuffers[index].mIndexBuffer, mTriangleMeshBuffers[index].mIndexBufferMemory, indices);
+		createVertexBuffers( mTriangleMeshBuffers[index].mVertexBuffer, mTriangleMeshBuffers[index].mVertexBufferMemory,vertices );
+		createIndexBuffers( mTriangleMeshBuffers[index].mIndexBuffer, mTriangleMeshBuffers[index].mIndexBufferMemory, indices);
 
 		return index;
 		
@@ -203,9 +203,7 @@ namespace itv
 		createCommandPool();
 		createDepthResources();
 		createFrameBuffers();
-		loadModel();
-		//createVertexBuffers();
-		//createIndexBuffers();
+
 		createTextureImage();
 		createTextureImageView();
 		createTextureSampler();
@@ -1130,7 +1128,7 @@ namespace itv
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBeginRenderPass(commandBuffers[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass( commandBuffers[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE );
 
 		for (Archetype& renderableArchetype : renderableQuery)
 		{
@@ -1494,6 +1492,7 @@ namespace itv
 		Transform trans;
 		Camera firstCamera;
 
+		//find first camera we can find
 		for (Archetype& cameraArchetype : cameraQuery)
 		{
 			ComponentArrayHandle<Transform> compHandleTransform = cameraArchetype.GetComponentArray<Transform>();
@@ -1513,22 +1512,17 @@ namespace itv
 		math::mat4 correctRot = math::rotate(math::mat4(1.0f), math::radians(-90.0f) , math::vec3(0.0f, 1.0f, 0.0f));
 
 		auto camTransform = trans.GetLocalTransform();
+
 		auto forward = trans.GetForward();
 		auto up = trans.GetUp();
 
 		math::vec3 pos = camTransform[3];
 
-		//ITV_LOG(" dir forward {0} ", math::to_string(forward)  );
-		//ITV_LOG(" dir up {0} ", math::to_string(up) );
 		UniformBufferObject ubo{};
 		
 		ubo.view = math::lookAt(pos, pos + forward, up);
 		ubo.proj = math::perspective(firstCamera.Fovy , mSwapChainExtent.width / (float) mSwapChainExtent.height, firstCamera.NearPlane, firstCamera.FarPlane);
 		
-		//ITV_LOG(" matrix from inverse {0} ", math::to_string(math::inverse(camTransform)) );
-
-		//ITV_LOG(" matrix from lookAt {0} ", math::to_string(ubo.view));
-
 		ubo.proj[1][1] *= -1;
 
 		void* data;
@@ -1558,7 +1552,7 @@ namespace itv
 			}
 		}
 
-		ITV_LOG("UpdateUniformBuffer {0}", entityCount);
+
 		vkUnmapMemory(mLogicalDevice, mObjectStorageBufferMemory[currentImage]);
 	}
 

@@ -135,6 +135,7 @@
     <ClCompile Include="src\Initiative\Log.cpp" />
     <ClCompile Include="src\Initiative\math.cpp" />
     <ClCompile Include="src\Initiative\Systems\CoreSystemRegistration.cpp" />
+    <ClCompile Include="src\Initiative\Systems\GraphicsSystem\Data\Material.cpp" />
     <ClCompile Include="src\Initiative\Systems\GraphicsSystem\GraphicsSystem.cpp" />
     <ClCompile Include="src\Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.cpp" />
     <ClCompile Include="src\Initiative\Window\GLFWWindow.cpp" />

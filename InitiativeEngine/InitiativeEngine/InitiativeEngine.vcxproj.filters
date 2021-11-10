@@ -140,6 +140,9 @@
     <ClCompile Include="src\Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Initiative\Systems\GraphicsSystem\Data\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Initiative\ECS\ECSSystemBase.inl">
