@@ -1,5 +1,5 @@
 #include "Material.h"
-
+#include "Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h"
 
 namespace itv
 {
@@ -12,7 +12,11 @@ namespace itv
 
 	bool MaterialCreationInfo::AddTexture(const char* textureDirectory, TextureUsageType textureType)
 	{
-		return false;
+		int textureIndex = GraphicsObjectLoader::LoadTexture(textureDirectory);
+
+		mTexturesUsed[static_cast<size_t>(textureType)] = { textureType,textureIndex };
+
+		return true; //TODO this function should notify if load texture failed
 	}
 
 	Material::Material(const MaterialCreationInfo& info)

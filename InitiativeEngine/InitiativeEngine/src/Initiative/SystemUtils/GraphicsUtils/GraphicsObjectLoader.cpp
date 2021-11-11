@@ -4,6 +4,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+
 namespace itv
 {
 	GraphicsSystem* GraphicsObjectLoader::sGraphicsSystem = nullptr;
@@ -58,10 +62,26 @@ namespace itv
 		return Mesh(std::move(vertices), std::move(indices), index);
 	}
 
-	int ITV_API GraphicsObjectLoader::LoadTexture(const char* fileLocation)
+	int GraphicsObjectLoader::LoadTexture(const char* fileLocation)
 	{
+		int texWidth, texHeight, texChannels;
+		stbi_uc* pixels = LoadTextureFromFile(fileLocation, texWidth, texHeight, texChannels);
+		
 
-		return -1;
+		if (!pixels) {
+			throw std::runtime_error("failed to load texture image!");
+		}
+
+		int textureIndex = sGraphicsSystem->LoadTextureIntoGraphicsSystem(pixels, texWidth, texHeight);
+
+		stbi_image_free(pixels);
+
+		return textureIndex;
+	}
+
+	unsigned char* GraphicsObjectLoader::LoadTextureFromFile(const char* fileLocation, OUT int& texWidth, OUT int& texHeight, OUT int& texChannels)
+	{
+		return stbi_load(fileLocation, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	}
 
 }

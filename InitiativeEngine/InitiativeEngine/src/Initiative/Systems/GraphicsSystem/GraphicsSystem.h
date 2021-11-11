@@ -16,6 +16,17 @@ namespace itv
 		VkDeviceMemory mIndexBufferMemory{};
 	};
 
+	struct VulkanTexture
+	{
+		VkDescriptorSet descriptor;
+	};
+
+	struct ImageAllocation
+	{
+		VkImage image;
+		VkDeviceMemory imageMemory;
+	};
+
 	class GraphicsSystem : public ECSSystemBase
 	{
 	private:
@@ -39,6 +50,8 @@ namespace itv
 
 		std::vector< VulkanVertexBuffer > mTriangleMeshBuffers;
 		std::vector< VkDescriptorSet >	  mTextureDescriptors;
+
+		std::vector< ImageAllocation > mImagesAllocated;
 		
 		VkInstance mInstance;
 		VkDebugUtilsMessengerEXT mDebugMessenger;
@@ -52,6 +65,7 @@ namespace itv
 		VkFormat mSwapChainImageFormat;
 		VkExtent2D mSwapChainExtent;
 
+		VkDescriptorSetLayout mSingleTextureDescriptorSetLayout;
 		VkDescriptorSetLayout mObjectDescriptorSetLayout;
 
 		VkDescriptorSetLayout descriptorSetLayout;
@@ -128,7 +142,6 @@ namespace itv
 		void createCommandPool();
 		void createDepthResources();
 		void createIndexBuffers(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices);
-		void loadModel();
 		void createVertexBuffers(VkBuffer& vertexBuffer,VkDeviceMemory& vertexBufferMemory,const std::vector<Vertex>& vertices);
 
 
@@ -246,7 +259,7 @@ namespace itv
 	
 		int LoadMeshIntoGraphicsSystem( const std::vector<Vertex>& vertices, const std::vector<uint32_t> indices );
 		
-		int LoadTextureIntoGraphicsSystem(const char* fileLocation);
+		int LoadTextureIntoGraphicsSystem(unsigned char* pixels, int texWidth, int texHeight);
 
 		GraphicsSystem();
 		~GraphicsSystem() override;

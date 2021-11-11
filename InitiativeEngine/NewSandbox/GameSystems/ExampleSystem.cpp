@@ -9,6 +9,7 @@
 #include "Initiative\math.h"
 #include "Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h"
 
+
 namespace itv
 {
 	ExampleSystem::ExampleSystem()
@@ -149,6 +150,11 @@ namespace itv
 
 		//temporary
 		Mesh mesh = GraphicsObjectLoader::LoadMesh("Models/viking_room.obj");
+
+		MaterialCreationInfo materialInfo;
+		materialInfo.AddTexture("textures/texture.jpg", TextureUsageType::ALBEDO_TEXTURE);
+
+		mesh.MeshMaterial = Material{ materialInfo };
 
 		Transform objectTransform;
 		

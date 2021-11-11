@@ -11,8 +11,7 @@
 
 #include "Initiative\math.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+
 
 #ifdef NDEBUG
 constexpr bool enableValidationLayers = false;
@@ -20,6 +19,8 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
+constexpr int MAX_RENDER_OBJECTS = 1000;
+constexpr int MAX_IMAGE_DESCRIPTORS = 100;
 
 namespace itv
 {
@@ -53,6 +54,78 @@ namespace itv
 
 		return index;
 		
+	}
+
+	int GraphicsSystem::LoadTextureIntoGraphicsSystem(unsigned char* pixels, int texWidth, int texHeight)
+	{
+		VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+
+		VkImage newImage;
+		VkDeviceMemory newImageMemory;
+
+		createBuffer(imageSize,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(mLogicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+		memcpy(data, pixels, static_cast<size_t>(imageSize));
+		vkUnmapMemory(mLogicalDevice, stagingBufferMemory);
+
+		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, newImage, newImageMemory);
+
+		transitionImageLayout(newImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		copyBufferToImage(stagingBuffer, newImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+
+		transitionImageLayout(newImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+		vkDestroyBuffer(mLogicalDevice, stagingBuffer, nullptr);
+		vkFreeMemory(mLogicalDevice, stagingBufferMemory, nullptr);
+
+		mImagesAllocated.emplace_back( ImageAllocation{ newImage ,newImageMemory } );
+
+		VkImageView newImageView = createImageView(newImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+
+
+		VkDescriptorSetAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = mDescriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &mSingleTextureDescriptorSetLayout;
+
+		VkDescriptorSet newDescriptorSet;
+
+		if (vkAllocateDescriptorSets(mLogicalDevice, &allocInfo, &newDescriptorSet) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = newImageView;
+		imageInfo.sampler = mTextureSampler;
+
+		
+		VkWriteDescriptorSet textureWrite{};
+		textureWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		textureWrite.dstSet = newDescriptorSet;
+		textureWrite.dstBinding = 0;
+		textureWrite.dstArrayElement = 0;
+		textureWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		textureWrite.descriptorCount = 1;
+		textureWrite.pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets(mLogicalDevice, 1, &textureWrite, 0, nullptr);
+
+		int descriptorIndex = mTextureDescriptors.size();
+		mTextureDescriptors.push_back(newDescriptorSet);
+
+		return descriptorIndex;
 	}
 
 	GraphicsSystem::GraphicsSystem()
@@ -545,7 +618,6 @@ namespace itv
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		
 
 		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
 
@@ -575,7 +647,23 @@ namespace itv
 		if (vkCreateDescriptorSetLayout(mLogicalDevice, &objectLayoutInfo, nullptr, &mObjectDescriptorSetLayout) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
-			
+
+		// Texture Descriptor
+		VkDescriptorSetLayoutBinding newSamplerLayoutBinding{};
+		newSamplerLayoutBinding.binding = 0;
+		newSamplerLayoutBinding.descriptorCount = 1;
+		newSamplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		newSamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		newSamplerLayoutBinding.pImmutableSamplers = nullptr;
+
+		VkDescriptorSetLayoutCreateInfo samplerLayoutInfo{};
+		samplerLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		samplerLayoutInfo.bindingCount = 1;
+		samplerLayoutInfo.pBindings = &newSamplerLayoutBinding;
+
+		if (vkCreateDescriptorSetLayout(mLogicalDevice, &samplerLayoutInfo, nullptr, &mSingleTextureDescriptorSetLayout) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create descriptor set layout!");
+		}
 	}
 
 	void GraphicsSystem::createGraphicsPipeline()
@@ -694,7 +782,7 @@ namespace itv
 		dynamicState.dynamicStateCount = 2;
 		dynamicState.pDynamicStates = dynamicStates;
 
-		std::array<VkDescriptorSetLayout,2> setLayouts = { descriptorSetLayout, mObjectDescriptorSetLayout };
+		std::array<VkDescriptorSetLayout,3> setLayouts = { descriptorSetLayout, mObjectDescriptorSetLayout,mSingleTextureDescriptorSetLayout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -803,45 +891,6 @@ namespace itv
 		vkFreeMemory(mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-	void GraphicsSystem::loadModel()
-	{
-		/*tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-
-		if (  !tinyobj::LoadObj( &attrib, &shapes, &materials, &warn, &err,"Models/viking_room.obj" ) ) 
-		{
-			throw std::runtime_error(warn + err);
-		}
-		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-		for (const auto& shape : shapes) {
-			for (const auto& index : shape.mesh.indices) {
-				Vertex vertex{};
-
-				vertex.pos = {
-				attrib.vertices[3 * index.vertex_index + 0],
-				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
-				};
-
-				vertex.texCoord = {
-				attrib.texcoords[2 * index.texcoord_index + 0],
-				1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-				};
-
-				if (uniqueVertices.count(vertex) == 0) {
-					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-					vertices.push_back(vertex);
-				}
-
-				indices.push_back(uniqueVertices[vertex]);
-			}
-		}*/
-
-	}
-
 	void GraphicsSystem::createVertexBuffers(VkBuffer& vertexBuffer, VkDeviceMemory& vertexBufferMemory, const std::vector<Vertex>& vertices)
 	{
 		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
@@ -865,7 +914,7 @@ namespace itv
 		vkFreeMemory( mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-	constexpr int MAX_RENDER_OBJECTS = 1000;
+
 
 	void GraphicsSystem::createStorageBuffers()
 	{
@@ -885,7 +934,9 @@ namespace itv
 	void GraphicsSystem::createTextureImage()
 	{
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("textures/viking_room.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+
+		unsigned char* pixels = GraphicsObjectLoader::LoadTextureFromFile("textures/viking_room.png", texWidth, texHeight, texChannels);
+
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels) {
@@ -904,7 +955,7 @@ namespace itv
 			memcpy(data, pixels, static_cast<size_t>(imageSize));
 		vkUnmapMemory( mLogicalDevice, stagingBufferMemory);
 
-		stbi_image_free(pixels);
+		//stbi_image_free(pixels);
 
 		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
@@ -984,16 +1035,21 @@ namespace itv
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
 
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[1].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
+		poolSizes[1].descriptorCount = MAX_IMAGE_DESCRIPTORS;
 
 		poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 		poolSizes[2].descriptorCount = static_cast<uint32_t>(mSwapChainImages.size());
+
+		int numberOfUniformDescriptorSetsCreated = mSwapChainImages.size();
+		int numberOfObjectDescriptorsSetsCreated = mSwapChainImages.size();
+		constexpr int numberOfSingleTextureDescriptorSetsCreated = 100;
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 		poolInfo.pPoolSizes = poolSizes.data();
-		poolInfo.maxSets = static_cast<uint32_t>( mSwapChainImages.size() ) * 2;
+		poolInfo.maxSets = static_cast<uint32_t>
+			(numberOfUniformDescriptorSetsCreated + numberOfObjectDescriptorsSetsCreated + numberOfSingleTextureDescriptorSetsCreated) ;
 
 		if (vkCreateDescriptorPool(mLogicalDevice, &poolInfo, nullptr, &mDescriptorPool) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor pool!");
@@ -1078,7 +1134,7 @@ namespace itv
 			descriptorWrites[2].pBufferInfo = &storageBufferInfo;
 
 			vkUpdateDescriptorSets(mLogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-
+			
 
 		}
 	}
@@ -1122,7 +1178,7 @@ namespace itv
 		renderPassInfo.renderArea.extent = mSwapChainExtent;
 
 		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[0].color = { {0.5f, 0.75f, 1.0f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -1151,7 +1207,7 @@ namespace itv
 				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 0, 1, &mUniformDescriptorSets[frameIndex], 0, nullptr);
 
-				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				vkCmdBindDescriptorSets( commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 1, 1, &mObjectDescriptorSets[frameIndex], 0, nullptr);
 
 				vkCmdDrawIndexed(commandBuffers[frameIndex], static_cast<uint32_t>(meshArray[i].Indices.size()), 1, 0, 0, i);

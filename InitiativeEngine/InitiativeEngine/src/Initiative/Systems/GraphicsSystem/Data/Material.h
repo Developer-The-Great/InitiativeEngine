@@ -32,9 +32,9 @@ namespace itv
 
 	public:
 
-		MaterialCreationInfo();
+		ITV_API MaterialCreationInfo();
 
-		bool AddTexture(const char* textureDirectory, TextureUsageType textureType);
+		ITV_API bool AddTexture(const char* textureDirectory, TextureUsageType textureType);
 
 	};
 
@@ -45,8 +45,8 @@ namespace itv
 		std::vector<int> mTextureIndices;
 
 	public:
-
-		Material(const MaterialCreationInfo& info);
+		Material() = default;
+		ITV_API Material(const MaterialCreationInfo& info);
 
 		inline int GetTexture(TextureUsageType textureUsageType) { return mTextureIndices[ static_cast<size_t>( textureUsageType) ]; }
 

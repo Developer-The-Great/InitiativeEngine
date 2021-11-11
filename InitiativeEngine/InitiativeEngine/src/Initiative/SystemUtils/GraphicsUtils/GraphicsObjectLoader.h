@@ -11,11 +11,13 @@ namespace itv
 	{
 	public:
 
-		static void				Init(GraphicsSystem* currentGraphicsSystem);
+		static void					  Init(GraphicsSystem* currentGraphicsSystem);
 
-		static Mesh		ITV_API LoadMesh(const char* fileLocation);
+		static Mesh			  ITV_API LoadMesh(const char* fileLocation);
 
-		static int		ITV_API LoadTexture(const char* fileLocation);
+		static int			  ITV_API LoadTexture(const char* fileLocation);
+
+		static unsigned char* LoadTextureFromFile(const char* fileLocation,OUT int& texWidth, OUT int& texHeight, OUT int& texChannels);
 
 	private:
 

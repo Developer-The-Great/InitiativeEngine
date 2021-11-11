@@ -2,7 +2,7 @@
 #include "Initiative\Core.h"
 #include "Initiative\math.h"
 #include "Initiative\Log.h"
-
+#include "Initiative\Systems\GraphicsSystem\Data\Material.h"
 
 namespace itv
 {
@@ -24,6 +24,8 @@ namespace itv
 	{
 		std::vector<Vertex> Vertices;
 		std::vector<uint32_t> Indices;
+
+		Material MeshMaterial;
 
 		int BufferIndex = -1;
 		int MaterialIndex = -1;
