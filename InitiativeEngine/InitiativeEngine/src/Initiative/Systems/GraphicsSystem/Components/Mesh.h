@@ -28,7 +28,6 @@ namespace itv
 		Material MeshMaterial;
 
 		int BufferIndex = -1;
-		int MaterialIndex = -1;
 
 		Mesh() { ITV_LOG("CTR");  }
 		~Mesh() = default;
@@ -41,14 +40,14 @@ namespace itv
 
 		Mesh(const Mesh& meshToCopy) 
 			: Vertices(meshToCopy.Vertices), Indices(meshToCopy.Indices), 
-			BufferIndex(meshToCopy.BufferIndex), MaterialIndex(meshToCopy.MaterialIndex)
+			BufferIndex(meshToCopy.BufferIndex), MeshMaterial(meshToCopy.MeshMaterial)
 		{
 			ITV_LOG("CPY CTR");
 		}
 
 		Mesh(Mesh&& tempMesh) noexcept 
 			: Vertices(std::move(tempMesh.Vertices)), Indices(std::move(tempMesh.Indices)),
-			BufferIndex(tempMesh.BufferIndex), MaterialIndex(tempMesh.MaterialIndex)
+			BufferIndex(tempMesh.BufferIndex), MeshMaterial( std::move(tempMesh.MeshMaterial) )
 		{
 			ITV_LOG("MOVE CTR");
 		}
@@ -57,7 +56,7 @@ namespace itv
 			Vertices = std::move(other.Vertices);
 			Indices = std::move(other.Indices);
 			BufferIndex = other.BufferIndex;
-			MaterialIndex = other.MaterialIndex;
+			MeshMaterial = std::move(other.MeshMaterial);
 			ITV_LOG("MOVE ASSIGN CTR");
 			return *this;
 		}

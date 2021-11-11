@@ -200,6 +200,18 @@ namespace itv
 			renderTestEntity.AddComponent(objectTransform);
 		}
 
+		ArchetypeQuery renderableQuery = FindArchetypesWith<Transform, Mesh>();
+
+		for (Archetype& renderableArchetype : renderableQuery)
+		{
+			auto meshArray = renderableArchetype.GetComponentArray<Mesh>();
+
+			for (size_t i = 0; i < renderableArchetype.GetEntityCount(); i++)
+			{
+				auto mesh = meshArray[i];
+
+			}
+		}
 		//Entity testHouse2 = CreateEntity();
 	}
 

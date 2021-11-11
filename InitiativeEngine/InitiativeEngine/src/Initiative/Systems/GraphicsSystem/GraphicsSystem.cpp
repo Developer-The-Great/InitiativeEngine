@@ -1207,8 +1207,12 @@ namespace itv
 				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 0, 1, &mUniformDescriptorSets[frameIndex], 0, nullptr);
 
-				vkCmdBindDescriptorSets( commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					mPipelineLayout, 1, 1, &mObjectDescriptorSets[frameIndex], 0, nullptr);
+
+				vkCmdBindDescriptorSets(commandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+					mPipelineLayout, 2, 1, 
+					&mTextureDescriptors[meshArray[i].MeshMaterial.GetTexture(TextureUsageType::ALBEDO_TEXTURE)], 0, nullptr);
 
 				vkCmdDrawIndexed(commandBuffers[frameIndex], static_cast<uint32_t>(meshArray[i].Indices.size()), 1, 0, 0, i);
 				//vkCmdDraw(commandBuffers[frameIndex], static_cast<uint32_t>(vertices.size()), 1, 0, i);

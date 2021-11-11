@@ -48,6 +48,21 @@ namespace itv
 		Material() = default;
 		ITV_API Material(const MaterialCreationInfo& info);
 
+		Material(const Material& materialToCopy) = default;
+
+		Material(Material&& materialToMove) noexcept
+			: mTextureIndices(std::move(materialToMove.mTextureIndices))
+		{
+
+		}
+
+		Material& operator=(Material&& other)
+		{
+			mTextureIndices = std::move(other.mTextureIndices);
+
+			return *this;
+		}
+
 		inline int GetTexture(TextureUsageType textureUsageType) { return mTextureIndices[ static_cast<size_t>( textureUsageType) ]; }
 
 
