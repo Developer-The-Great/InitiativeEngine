@@ -18,7 +18,7 @@ namespace itv
 		int Width, Height;
 		std::string Title;
 
-		WindowInfo(int pWidth = 1080, int pHeight = 720, const std::string& pTitle = "Initiative Application") : 
+		WindowInfo(int pWidth = 1920, int pHeight = 1080, const std::string& pTitle = "Initiative Application") : 
 			Width(pWidth), Height(pHeight),Title(pTitle)
 		{
 

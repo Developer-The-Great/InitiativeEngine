@@ -67,8 +67,8 @@ namespace itv
 
 		VkDescriptorSetLayout mSingleTextureDescriptorSetLayout;
 		VkDescriptorSetLayout mObjectDescriptorSetLayout;
-
 		VkDescriptorSetLayout descriptorSetLayout;
+
 		VkPipelineLayout mPipelineLayout;
 		VkRenderPass mRenderPass;
 		
@@ -94,15 +94,6 @@ namespace itv
 		std::vector < VkBuffer > mObjectStorageBuffer;
 		std::vector < VkDeviceMemory > mObjectStorageBufferMemory;
 
-		//VkBuffer mVertexBuffer;
-		//VkDeviceMemory mVertexBufferMemory;
-
-		/*VkBuffer mIndexBuffer;
-		VkDeviceMemory mIndexBufferMemory;*/
-
-		VkImage textureImage;
-		VkDeviceMemory textureImageMemory;
-
 		VkDescriptorPool mDescriptorPool;
 
 		std::vector<VkBuffer> mUniformBuffers;
@@ -111,9 +102,6 @@ namespace itv
 		std::vector<VkDescriptorSet> mUniformDescriptorSets;
 		std::vector<VkDescriptorSet> mObjectDescriptorSets;
 
-
-
-		VkImageView mTextureImageView;
 		VkSampler mTextureSampler;
 
 		VkImage depthImage;
@@ -144,11 +132,8 @@ namespace itv
 		void createIndexBuffers(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices);
 		void createVertexBuffers(VkBuffer& vertexBuffer,VkDeviceMemory& vertexBufferMemory,const std::vector<Vertex>& vertices);
 
-
-
 		void createStorageBuffers();
-		void createTextureImage();
-		void createTextureImageView();
+
 		void createTextureSampler();
 		void createUniformBuffers();
 		void createDescriptorPool();

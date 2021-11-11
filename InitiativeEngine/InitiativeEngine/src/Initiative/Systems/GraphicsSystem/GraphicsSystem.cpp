@@ -142,6 +142,21 @@ namespace itv
 
 	void GraphicsSystem::cleanup()
 	{
+		for (VulkanVertexBuffer& allocatedBuffer : mTriangleMeshBuffers)
+		{
+			vkDestroyBuffer(mLogicalDevice,allocatedBuffer.mVertexBuffer,nullptr);
+			vkFreeMemory(mLogicalDevice, allocatedBuffer.mVertexBufferMemory,nullptr);
+
+			vkDestroyBuffer(mLogicalDevice, allocatedBuffer.mIndexBuffer, nullptr);
+			vkFreeMemory(mLogicalDevice, allocatedBuffer.mIndexBufferMemory, nullptr);
+		}
+
+		for (ImageAllocation& imageAlloc : mImagesAllocated)
+		{
+			vkDestroyImage(mLogicalDevice, imageAlloc.image, nullptr);
+			vkFreeMemory(mLogicalDevice, imageAlloc.imageMemory, nullptr);
+		}
+
 		vkDestroyImageView(mLogicalDevice, depthImageView, nullptr);
 		vkDestroyImage(mLogicalDevice, depthImage, nullptr);
 		vkFreeMemory(mLogicalDevice, depthImageMemory, nullptr);
@@ -150,19 +165,9 @@ namespace itv
 
 		vkDestroySampler(mLogicalDevice, mTextureSampler, nullptr);
 
-		vkDestroyImage(mLogicalDevice, textureImage, nullptr);
-		vkFreeMemory(mLogicalDevice, textureImageMemory, nullptr);
-
-		vkDestroyImageView( mLogicalDevice, mTextureImageView, nullptr);
-
 		vkDestroyDescriptorSetLayout(mLogicalDevice, descriptorSetLayout, nullptr);
 		vkDestroyDescriptorSetLayout(mLogicalDevice, mObjectDescriptorSetLayout, nullptr);
-
-		//vkDestroyBuffer( mLogicalDevice, mIndexBuffer, nullptr);
-		//vkFreeMemory( mLogicalDevice, mIndexBufferMemory, nullptr);
-
-		/*vkDestroyBuffer( mLogicalDevice, mVertexBuffer, nullptr);
-		vkFreeMemory( mLogicalDevice, mVertexBufferMemory, nullptr);*/
+		vkDestroyDescriptorSetLayout(mLogicalDevice, mSingleTextureDescriptorSetLayout, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 		{
@@ -277,8 +282,6 @@ namespace itv
 		createDepthResources();
 		createFrameBuffers();
 
-		createTextureImage();
-		createTextureImageView();
 		createTextureSampler();
 		createUniformBuffers();
 		createStorageBuffers();
@@ -612,19 +615,10 @@ namespace itv
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		uboLayoutBinding.pImmutableSamplers = nullptr;
 
-		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 1;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
-
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-		layoutInfo.pBindings = bindings.data();
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &uboLayoutBinding;
 
 		if (vkCreateDescriptorSetLayout(mLogicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create descriptor set layout!");
@@ -914,8 +908,6 @@ namespace itv
 		vkFreeMemory( mLogicalDevice, stagingBufferMemory, nullptr);
 	}
 
-
-
 	void GraphicsSystem::createStorageBuffers()
 	{
 		VkDeviceSize bufferSize = sizeof(GPUObjectData) * MAX_RENDER_OBJECTS;
@@ -929,53 +921,6 @@ namespace itv
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 				mObjectStorageBuffer[i], mObjectStorageBufferMemory[i]);
 		}
-	}
-
-	void GraphicsSystem::createTextureImage()
-	{
-		int texWidth, texHeight, texChannels;
-
-		unsigned char* pixels = GraphicsObjectLoader::LoadTextureFromFile("textures/viking_room.png", texWidth, texHeight, texChannels);
-
-		VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-		if (!pixels) {
-			throw std::runtime_error("failed to load texture image!");
-		}
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-
-		createBuffer(imageSize, 
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-			stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory( mLogicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
-			memcpy(data, pixels, static_cast<size_t>(imageSize));
-		vkUnmapMemory( mLogicalDevice, stagingBufferMemory);
-
-		//stbi_image_free(pixels);
-
-		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		vkDestroyBuffer(mLogicalDevice, stagingBuffer, nullptr);
-		vkFreeMemory(mLogicalDevice, stagingBufferMemory, nullptr);
-
-	}
-
-	void GraphicsSystem::createTextureImageView()
-	{
-		mTextureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB,VK_IMAGE_ASPECT_COLOR_BIT);
-
 	}
 
 	void GraphicsSystem::createTextureSampler()
@@ -1097,17 +1042,17 @@ namespace itv
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
-			VkDescriptorImageInfo imageInfo{};
+	/*		VkDescriptorImageInfo imageInfo{};
 			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 			imageInfo.imageView = mTextureImageView;
-			imageInfo.sampler = mTextureSampler;
+			imageInfo.sampler = mTextureSampler;*/
 
 			VkDescriptorBufferInfo storageBufferInfo{};
 			storageBufferInfo.buffer = mObjectStorageBuffer[i];
 			storageBufferInfo.offset = 0;
 			storageBufferInfo.range = sizeof(GPUObjectData) * MAX_RENDER_OBJECTS;
 
-			std::array<VkWriteDescriptorSet, 3> descriptorWrites{};
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 			//Uniform Buffer
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet = mUniformDescriptorSets[i];
@@ -1117,21 +1062,21 @@ namespace itv
 			descriptorWrites[0].descriptorCount = 1;
 			descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = mUniformDescriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pImageInfo = &imageInfo;
+			//descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			//descriptorWrites[1].dstSet = mUniformDescriptorSets[i];
+			//descriptorWrites[1].dstBinding = 1;
+			//descriptorWrites[1].dstArrayElement = 0;
+			//descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			//descriptorWrites[1].descriptorCount = 1;
+			//descriptorWrites[1].pImageInfo = &imageInfo;
 
-			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[2].dstSet = mObjectDescriptorSets[i];
-			descriptorWrites[2].dstBinding = 0;
-			descriptorWrites[2].dstArrayElement = 0;
-			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			descriptorWrites[2].descriptorCount = 1;
-			descriptorWrites[2].pBufferInfo = &storageBufferInfo;
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = mObjectDescriptorSets[i];
+			descriptorWrites[1].dstBinding = 0;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pBufferInfo = &storageBufferInfo;
 
 			vkUpdateDescriptorSets(mLogicalDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 			

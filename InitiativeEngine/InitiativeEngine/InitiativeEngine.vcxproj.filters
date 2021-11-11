@@ -93,13 +93,13 @@
     <ClInclude Include="src\Initiative\Events\InputEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Initiative\InputCodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Initiative\Systems\GraphicsSystem\Data\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Initiative\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -141,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Initiative\Systems\GraphicsSystem\Data\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Initiative\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

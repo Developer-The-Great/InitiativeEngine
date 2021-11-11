@@ -4,7 +4,7 @@
 #include "Initiative\Systems\GraphicsSystem\Components\Camera.h"
 #include "Initiative\GenericComponents\GenericComponents.h"
 #include "Initiative\Systems\GraphicsSystem\Components\WindowHandle.h"
-#include "Initiative\InputCodes.h"
+#include "Initiative\Input.h"
 #include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
 #include "Initiative\math.h"
 #include "Initiative\SystemUtils\GraphicsUtils\GraphicsObjectLoader.h"
@@ -46,41 +46,6 @@ namespace itv
 				windowHandle.window->SetMouseLockState(MouseLockState::Normal);
 			}
 			
-			
-
-			ArchetypeQuery cameraQuery = FindArchetypesWith<Camera, Transform>();
-			for (Archetype& cameraArchetype : cameraQuery)
-			{
-				auto transformArrayHandle = cameraArchetype.GetComponentArray<Transform>();
-
-				float movement = 0.1f;
-
-				Transform& cameraTransform = transformArrayHandle[0];
-
-				if (input.Key == KeyCode::W && input.Action == KeyAction::Hold)
-				{
-					cameraTransform.Translate(cameraTransform.GetForward() * movement);
-				}
-
-				if (input.Key == KeyCode::A && input.Action == KeyAction::Hold)
-				{
-					cameraTransform.Translate(cameraTransform.GetRight() * movement);
-				}
-
-				if (input.Key == KeyCode::S && input.Action == KeyAction::Hold)
-				{
-					cameraTransform.Translate(cameraTransform.GetForward() * -movement);
-				}
-
-				if (input.Key == KeyCode::D && input.Action == KeyAction::Hold)
-				{
-					cameraTransform.Translate(cameraTransform.GetRight() * -movement);
-				}
-			}
-
-
-			
-
 		});
 	}
 
@@ -148,57 +113,80 @@ namespace itv
 		ScoreTracker tracker;
 		scoreTracker.AddComponent(tracker);
 
-		//temporary
-		Mesh mesh = GraphicsObjectLoader::LoadMesh("Models/viking_room.obj");
+		//--------------------------------- LION ---------------------------------------//
+		Mesh lionMesh = GraphicsObjectLoader::LoadMesh("Models/lion.obj");
+		{
+			MaterialCreationInfo materialInfo;
+			materialInfo.AddTexture("textures/lion.png", TextureUsageType::ALBEDO_TEXTURE);
+			lionMesh.MeshMaterial = Material{ materialInfo };
+		}
 
-		MaterialCreationInfo materialInfo;
-		materialInfo.AddTexture("textures/texture.jpg", TextureUsageType::ALBEDO_TEXTURE);
+		//------------------------------- FLOOR ----------------------------------------//
+		Mesh floorMesh = GraphicsObjectLoader::LoadMesh("Models/floor.obj");
+		{
+			MaterialCreationInfo materialInfo;
+			materialInfo.AddTexture("textures/floor.jpg", TextureUsageType::ALBEDO_TEXTURE);
+			floorMesh.MeshMaterial = Material{ materialInfo };
+		}
 
-		mesh.MeshMaterial = Material{ materialInfo };
+		//------------------------------- MONKEY ----------------------------------------//
+		Mesh vikingHouseMesh = GraphicsObjectLoader::LoadMesh("Models/monkey_smooth.obj");
+		{
+			MaterialCreationInfo materialInfo;
+			materialInfo.AddTexture("textures/Asphalt.png", TextureUsageType::ALBEDO_TEXTURE);
+			vikingHouseMesh.MeshMaterial = Material{ materialInfo };
+		}
 
 		Transform objectTransform;
 		
 		objectTransform.SetLocalPosition( math::vec3(0, 0, 0) );
-		objectTransform.SetLocalRotation( math::ConstructQuatFromVec( math::vec3(0, 1, 0), math::vec3(1, 0, 0) ) );
-		objectTransform.SetLocalScale( math::vec3(1) );
+		objectTransform.SetLocalRotation(math::ConstructQuatFromVec(math::vec3(0, 1, 0), math::vec3(1, 0, 0)));
+		objectTransform.SetLocalScale( math::vec3(0.075f) );
 
 		{
 			Entity renderTestEntity = CreateEntity();
-			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(floorMesh);
 			renderTestEntity.AddComponent(objectTransform);
 		}
+
+		objectTransform.SetLocalRotation(math::ConstructQuatFromVec(math::vec3(-0.77, 0, 0.77), math::vec3(0, 1, 0)));
+		objectTransform.SetLocalScale(math::vec3(0.6f));
 		
 		{
-			objectTransform.SetLocalPosition(math::vec3(2, 0, 0));
+			objectTransform.SetLocalPosition(math::vec3(2, 1.2f, 0));
 
 			Entity renderTestEntity = CreateEntity();
-			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(vikingHouseMesh);
 			renderTestEntity.AddComponent(objectTransform);
 		}
+
+		objectTransform.SetLocalRotation(math::ConstructQuatFromVec(math::vec3(0.77, 0, 0.77), math::vec3(0, 1, 0)));
 
 		{
-			objectTransform.SetLocalPosition(math::vec3(-2, 0, 0));
+			objectTransform.SetLocalPosition(math::vec3(-2, 1.2f, 0));
 
 			Entity renderTestEntity = CreateEntity();
-			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(vikingHouseMesh);
 			renderTestEntity.AddComponent(objectTransform);
 		}
 
+		objectTransform.SetLocalScale(math::vec3(0.05f));
+		objectTransform.SetLocalRotation(math::ConstructQuatFromVec(math::vec3(1, 0, 0), math::vec3(0, 1, 0)));
 		{
-			objectTransform.SetLocalPosition(math::vec3(0, 2, 0));
+			objectTransform.SetLocalPosition(math::vec3(0, 1.1f, 0));
 
 			Entity renderTestEntity = CreateEntity();
-			renderTestEntity.AddComponent(mesh);
+			renderTestEntity.AddComponent(lionMesh);
 			renderTestEntity.AddComponent(objectTransform);
 		}
 
-		{
-			objectTransform.SetLocalPosition(math::vec3(0, -2, 0));
+		//{
+		//	objectTransform.SetLocalPosition(math::vec3(0, -2, 0));
 
-			Entity renderTestEntity = CreateEntity();
-			renderTestEntity.AddComponent(mesh);
-			renderTestEntity.AddComponent(objectTransform);
-		}
+		//	Entity renderTestEntity = CreateEntity();
+		//	renderTestEntity.AddComponent(vikingHouseMesh);
+		//	renderTestEntity.AddComponent(objectTransform);
+		//}
 
 		ArchetypeQuery renderableQuery = FindArchetypesWith<Transform, Mesh>();
 
@@ -217,6 +205,35 @@ namespace itv
 
 	void ExampleSystem::Run()
 	{
+		ArchetypeQuery cameraQuery = FindArchetypesWith<Camera, Transform>();
+		for (Archetype& cameraArchetype : cameraQuery)
+		{
+			auto transformArrayHandle = cameraArchetype.GetComponentArray<Transform>();
+
+			float movement = 0.01f;
+
+			Transform& cameraTransform = transformArrayHandle[0];
+
+			if (Input::IsKeyPressed(KeyCode::W))
+			{
+				cameraTransform.Translate(cameraTransform.GetForward() * movement);
+			}
+
+			if (Input::IsKeyPressed(KeyCode::A))
+			{
+				cameraTransform.Translate(cameraTransform.GetRight() * movement);
+			}
+
+			if (Input::IsKeyPressed(KeyCode::S))
+			{
+				cameraTransform.Translate(cameraTransform.GetForward() * -movement);
+			}
+
+			if (Input::IsKeyPressed(KeyCode::D))
+			{
+				cameraTransform.Translate(cameraTransform.GetRight() * -movement);
+			}
+		}
 		////find player archetype
 		//ArchetypeQuery playerQuery = FindArchetypesWith<PlayerGun>();
 		//ITV_LOG("Number of archetypes in playerQuery {0} ", playerQuery.Size());

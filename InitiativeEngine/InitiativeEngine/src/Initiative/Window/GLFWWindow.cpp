@@ -77,8 +77,6 @@ namespace itv
 
 		#define GETWINDOWDATA(x) *static_cast<GLFWWindowData*>(glfwGetWindowUserPointer(x))
 
-		//glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 		//set callbacks
 		glfwSetWindowSizeCallback(mWindow, [](GLFWwindow* window, int width, int height)
 		{

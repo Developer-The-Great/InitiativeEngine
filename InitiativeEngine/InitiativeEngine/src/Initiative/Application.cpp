@@ -6,6 +6,7 @@
 
 #include "Log.h"
 #include "math.h"
+#include "Input.h"
 
 namespace itv
 {
@@ -13,6 +14,8 @@ namespace itv
 	{
 		WindowInfo info;
 		mWindow = Window::Create(info);
+
+		Input::SetWindowPtr(mWindow->GetWindowPtr());
 
 		bool& applicationRunning = mApplicationRunning;
 
