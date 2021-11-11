@@ -1,16 +1,31 @@
 #pragma once
 #include "Initiative\ECS\ECSSystemBase.h"
 #include "vulkan\vulkan.h"
+#include "Initiative\Systems\GraphicsSystem\Components\Mesh.h"
 
 namespace itv
 {
 	class Window;
 
-#ifdef NDEBUG
-	constexpr bool enableValidationLayers = false;
-#else
-	constexpr bool enableValidationLayers = true;
-#endif
+	struct VulkanVertexBuffer
+	{
+		VkBuffer mVertexBuffer{};
+		VkDeviceMemory mVertexBufferMemory{};
+
+		VkBuffer mIndexBuffer{};
+		VkDeviceMemory mIndexBufferMemory{};
+	};
+
+	struct VulkanTexture
+	{
+		VkDescriptorSet descriptor;
+	};
+
+	struct ImageAllocation
+	{
+		VkImage image;
+		VkDeviceMemory imageMemory;
+	};
 
 	class GraphicsSystem : public ECSSystemBase
 	{
@@ -33,7 +48,10 @@ namespace itv
 			std::vector<VkPresentModeKHR> presentModes;
 		};
 
+		std::vector< VulkanVertexBuffer > mTriangleMeshBuffers;
+		std::vector< VkDescriptorSet >	  mTextureDescriptors;
 
+		std::vector< ImageAllocation > mImagesAllocated;
 		
 		VkInstance mInstance;
 		VkDebugUtilsMessengerEXT mDebugMessenger;
@@ -47,7 +65,10 @@ namespace itv
 		VkFormat mSwapChainImageFormat;
 		VkExtent2D mSwapChainExtent;
 
+		VkDescriptorSetLayout mSingleTextureDescriptorSetLayout;
+		VkDescriptorSetLayout mObjectDescriptorSetLayout;
 		VkDescriptorSetLayout descriptorSetLayout;
+
 		VkPipelineLayout mPipelineLayout;
 		VkRenderPass mRenderPass;
 		
@@ -70,23 +91,17 @@ namespace itv
 		std::vector<VkFence> mInFlightFences;
 		std::vector<VkFence> mImagesInFlight;
 
-		VkBuffer mVertexBuffer;
-		VkDeviceMemory mVertexBufferMemory;
-
-		VkBuffer mIndexBuffer;
-		VkDeviceMemory mIndexBufferMemory;
-
-		VkImage textureImage;
-		VkDeviceMemory textureImageMemory;
+		std::vector < VkBuffer > mObjectStorageBuffer;
+		std::vector < VkDeviceMemory > mObjectStorageBufferMemory;
 
 		VkDescriptorPool mDescriptorPool;
 
 		std::vector<VkBuffer> mUniformBuffers;
 		std::vector<VkDeviceMemory> mUniformBuffersMemory;
 
-		std::vector<VkDescriptorSet> descriptorSets;
+		std::vector<VkDescriptorSet> mUniformDescriptorSets;
+		std::vector<VkDescriptorSet> mObjectDescriptorSets;
 
-		VkImageView mTextureImageView;
 		VkSampler mTextureSampler;
 
 		VkImage depthImage;
@@ -114,16 +129,17 @@ namespace itv
 		void createFrameBuffers();
 		void createCommandPool();
 		void createDepthResources();
-		void createIndexBuffers();
-		void loadModel();
-		void createVertexBuffers();
-		void createTextureImage();
-		void createTextureImageView();
+		void createIndexBuffers(VkBuffer& indexBuffer, VkDeviceMemory& indexBufferMemory, const std::vector<uint32_t>& indices);
+		void createVertexBuffers(VkBuffer& vertexBuffer,VkDeviceMemory& vertexBufferMemory,const std::vector<Vertex>& vertices);
+
+		void createStorageBuffers();
+
 		void createTextureSampler();
 		void createUniformBuffers();
 		void createDescriptorPool();
 		void createDescriptorSets();
 		void createCommandBuffers();
+		void recordCommandBuffers(uint32_t frameIndex);
 		void createSyncObjects();
 
 		void recreateSwapChain();
@@ -194,10 +210,41 @@ namespace itv
 			return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 		}
 
+		static VkVertexInputBindingDescription getBindingDescription() {
+			VkVertexInputBindingDescription bindingDescription{};
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
+			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+			attributeDescriptions[0].binding = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+			attributeDescriptions[1].binding = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
+			return attributeDescriptions;
+		}
+
+
 	public:
 	
-
+		int LoadMeshIntoGraphicsSystem( const std::vector<Vertex>& vertices, const std::vector<uint32_t> indices );
 		
+		int LoadTextureIntoGraphicsSystem(unsigned char* pixels, int texWidth, int texHeight);
 
 		GraphicsSystem();
 		~GraphicsSystem() override;

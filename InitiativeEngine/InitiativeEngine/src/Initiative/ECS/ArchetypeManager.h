@@ -159,6 +159,8 @@ namespace itv
 
 		template<class Component> void			RegisterComponent();
 
+		ITV_API void							RegisterGenericComponents();
+
 		template<class Component> bool			IsComponentRegistered();
 
 	};
