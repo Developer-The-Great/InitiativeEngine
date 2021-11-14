@@ -1,6 +1,6 @@
 #pragma once
 #include "Initiative\Core.h"
-
+#include "Initiative\TypeHashing.h"
 
 namespace itv
 {
@@ -55,8 +55,6 @@ namespace itv
 
 		size_t GetObserverIdentifier() const { return mObserverIdentifier; }
 
-		constexpr size_t GetObservingEventType() const { return typeid(Event).hash_code(); }
-
 		void SetEventFunc(EventFunc newEventFunc) { mEventFunc = newEventFunc; }
 
 	private:
@@ -94,12 +92,14 @@ namespace itv
 		{
 			static_assert(std::is_base_of<EventBase, Event>::value);
 
+			constexpr size_t eventHashCode = GenerateTypeHash<Event>();
+
 			observer.unRegisterFromCurrentSubject();
 			observer.mSubject = this;
 
 			mObservers.push_back(&observer);
 			mObserverIdentifiers.push_back(observer.GetObserverIdentifier());
-			mObserverType.push_back(observer.GetObservingEventType());
+			mObserverType.push_back(eventHashCode);
 		}
 
 		template<class Event>
@@ -136,9 +136,7 @@ namespace itv
 		{
 			static_assert(std::is_base_of<EventBase, Event>::value);
 
-			static size_t eventHashCode = typeid(Event).hash_code(); 
-			//TODO type_info::hash_code is not guranteed to return unique values, this means that different types may return
-			//the same hash code.  
+			constexpr size_t eventHashCode = GenerateTypeHash<Event>();
 
 			for (size_t i = 0; i < mObservers.size(); i++)
 			{
