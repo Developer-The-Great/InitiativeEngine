@@ -99,6 +99,7 @@
     <ClInclude Include="src\Initiative\Application.h" />
     <ClInclude Include="src\Initiative\Containers\sparse_set.h" />
     <ClInclude Include="src\Initiative\Core.h" />
+    <ClInclude Include="src\Initiative\ECS\Archetype.h" />
     <ClInclude Include="src\Initiative\ECS\ArchetypeManager.h" />
     <ClInclude Include="src\Initiative\ECS\ComponentArray.h" />
     <ClInclude Include="src\Initiative\ECS\ECSSystemBase.h" />
@@ -127,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Initiative\Application.cpp" />
+    <ClCompile Include="src\Initiative\ECS\Archetype.cpp" />
     <ClCompile Include="src\Initiative\ECS\ArchetypeManager.cpp" />
     <ClCompile Include="src\Initiative\ECS\ECSSystemBase.cpp" />
     <ClCompile Include="src\Initiative\ECS\ECSSystemManager.cpp" />

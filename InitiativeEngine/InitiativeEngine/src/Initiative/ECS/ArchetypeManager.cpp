@@ -1,61 +1,20 @@
 #include "ArchetypeManager.h"
 
-#define DEFAULT_ARCHETYPE 0
-#define ARCHETYPE_RESERVE 100
+
 
 namespace itv
 {
+	constexpr size_t default_archetype_index = 0;
+	constexpr size_t archetype_reserve = 100;
+
 	TypeID ArchetypeManager::nextEntityID = 0;
 
-	//----------------------------------------------------------------------------------------------//
-	//									Archetype
-	//----------------------------------------------------------------------------------------------//
-
-
 	ArchetypeManager* Entity::sArchetypeManager = nullptr;
-	ArchetypeManager * Archetype::sArchetypeManager = nullptr;
-
-	Archetype::Archetype(const ArchetypeType& archetypeType) : mArchetypeType(archetypeType)
-	{
-		for (int i = 0; i < archetypeType.Size(); ++i)
-		{
-			instatiateNewComponentArray(mArchetypeType.At(i));
-		}
-	}
-
-	void Archetype::moveExistingEntity(TypeID id,Archetype& newArchetype)
-	{
-		mEntities.remove(static_cast<Entity>(id));
-		newArchetype.mEntities.push_back_unique(static_cast<Entity>(id));
-	}
-
-	void Archetype::instatiateNewComponentArray(const TypeID id)
-	{
-		auto instantiationFunc = sArchetypeManager->GetComponentArrayInstantiationFunc(id);
-		mComponentArrays.emplace_back(instantiationFunc());
-	}
-
-	void* Archetype::FindComponentArrayOfType(TypeID typeHash)
-	{
-		for (size_t i = 0; i < mComponentArrays.size(); i++)
-		{
-			if (mArchetypeType.At(i) == typeHash)
-			{
-				return mComponentArrays[i]->GetCompArrayPtr();
-			}
-		}
-
-		return nullptr;
-	}
-
-	//----------------------------------------------------------------------------------------------//
-	//									ArchetypeManager
-	//----------------------------------------------------------------------------------------------//
 
 	ArchetypeManager::ArchetypeManager()
 	{
 		//mArchetypes should never get resized because it will invalidate references to archetypes
-		mArchetypes.reserve(ARCHETYPE_RESERVE);
+		mArchetypes.reserve(archetype_reserve);
 
 		Entity::sArchetypeManager = this;
 		Archetype::sArchetypeManager = this;
@@ -133,9 +92,9 @@ namespace itv
 	{
 		nextEntityID++;
 		
-		mArchetypes[DEFAULT_ARCHETYPE].mEntities.push_back_unique(Entity(nextEntityID));
+		mArchetypes[default_archetype_index].mEntities.push_back_unique(Entity(nextEntityID));
 
-		mEntityRecords.insert( std::make_pair(nextEntityID, DEFAULT_ARCHETYPE) );
+		mEntityRecords.insert( std::make_pair(nextEntityID, default_archetype_index) );
 
 		return Entity(nextEntityID);
 	}
